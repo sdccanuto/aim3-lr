@@ -1,4 +1,4 @@
-package com.celebihacker;
+package com.celebihacker.ml;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -32,7 +32,7 @@ public class MLUtils {
    * @return
    * @throws IOException
    */
-  static BufferedReader open(String inputFile) throws IOException {
+  public static BufferedReader open(String inputFile) throws IOException {
     InputStream in;
     try {
       in = Resources.getResource(inputFile).openStream();
