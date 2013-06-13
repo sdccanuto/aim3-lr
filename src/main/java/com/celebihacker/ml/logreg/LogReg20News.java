@@ -28,16 +28,18 @@ import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 
 /**
+ * NOT WORKING AT ALL!
+ * 
+ * Just for code lookup
  * Copied from https://github.com/tdunning/MiA/blob/master/src/main/java/mia/classifier/ch14/TrainNewsGroups.java
  * @author andre
- *
  */
 public class LogReg20News {  
   
   private static final int FEATURES = 10000;
   private static Multiset<String> overallCounts;
 
-  public static void main(String args[]) {
+  public void train20News() {
     
     File base = new File("/home/andre/dev/datasets/20newsgroups/20news-bydate-train");
 //    File base = new File(args[0]);
@@ -55,8 +57,8 @@ public class LogReg20News {
     
     OnlineLogisticRegression learningAlgorithm =
     new OnlineLogisticRegression(
-    20, FEATURES, new L1())
-    .alpha(1).stepOffset(1000)
+    20, FEATURES, new L1());
+    learningAlgorithm.alpha(1).stepOffset(1000)
     .decayExponent(0.9)
     .lambda(3.0e-5)
     .learningRate(20);
