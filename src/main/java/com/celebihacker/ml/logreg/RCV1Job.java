@@ -1,7 +1,11 @@
 package com.celebihacker.ml.logreg;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
+import java.util.Random;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -13,17 +17,40 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.Tool;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.mahout.math.RandomAccessSparseVector;
 import org.apache.mahout.math.VectorWritable;
 
-
+/**
+ * TODO Improvement: Switch to current stable Release 1.1.2 (currently using 1.0.4) 
+ *
+ */
 public class RCV1Job extends Configured implements Tool {
     
   public static class Map extends Mapper<Object, Text, IntWritable, VectorWritable> {
-  
+    
+    Random random = new Random();
+    int numberReducers = 2;
+    IntWritable partition = new IntWritable();
+    private static Logger logger = Logger.getLogger(Map.class.getName()); 
+
+    @Override
+    protected void setup(org.apache.hadoop.mapreduce.Mapper.Context context)
+        throws IOException, InterruptedException {
+      super.setup(context);
+      
+      logger.setLevel(Level.DEBUG);
+      numberReducers = Integer.parseInt(context.getConfiguration().get("mapred.reduce.tasks"));
+      System.out.println("Number reducers: " + numberReducers);
+    }
+    
     public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
       // Randomly distribute to Reducers to get a random partitioning
-      System.out.println(key);
-//      context.write(word, one);
+      // TODO: If Reducer uses SGD (Online, one-pass), we should also randomize the order within each partition?!
+      logger.debug(key + " -> " + partition.get());
+      partition.set(random.nextInt(numberReducers));
+      context.write(partition, new VectorWritable(new RandomAccessSparseVector(2)));
     }
   }
 
@@ -31,13 +58,23 @@ public class RCV1Job extends Configured implements Tool {
     class for Reduce
   */
   public static class Reduce extends Reducer<IntWritable, VectorWritable, IntWritable, Text> {
+    
+    Text currentOutput = new Text();
+    private static Logger logger = Logger.getLogger(Reduce.class.getName());
+    
+    @Override
+    protected void setup(org.apache.hadoop.mapreduce.Reducer.Context context)
+        throws IOException, InterruptedException {
+      super.setup(context);
+      logger.setLevel(Level.DEBUG);
+    }
   
     public void reduce(IntWritable key, Iterable<VectorWritable> values, Context context) throws IOException, InterruptedException {
-      // Train
+      // Train a full model, using sequential in-memory technique
       for (VectorWritable val : values) {
-        
+        currentOutput.set(val.toString());
+        context.write(key, currentOutput);
       }
-//      context.write(key, result);
     }
 
   }
@@ -59,6 +96,7 @@ public class RCV1Job extends Configured implements Tool {
   private Job prepareJob() throws IOException {
 
     Job job = new Job(getConf(), "rcv1");
+    Configuration conf = job.getConfiguration();
     job.setJarByClass(getClass());
 
     String inputFile = "";  // will be set depending on localmode or not
@@ -68,27 +106,28 @@ public class RCV1Job extends Configured implements Tool {
     // Work with local information (not in local mode)
     // Requires building of the jar first: mvn package
     if (runLocalMode) {
+      new DeletingVisitor().accept(new File(outputDir));
       inputFile = "/home/andre/dev/datasets/RCV1-v2/vectors/lyrl2004_vectors_train_5000.dat";
     } else {
       // reads configuration in core-site.xml. hdfs for me
       inputFile = "rcv1-v2/lyrl2004_vectors_train_5000.dat";
-      job.getConfiguration().addResource(new Path("core-site.xml"));
-      job.getConfiguration().set("mapred.jar","target/aim3-logreg-0.0.1-SNAPSHOT.jar");
+      conf.addResource(new Path("core-site.xml"));
+//      conf.set("mapred.jar","target/aim3-logreg-0.0.1-SNAPSHOT.jar");
+      conf.set("mapred.jar","target/aim3-logreg-0.0.1-SNAPSHOT-job.jar");
+      
       
       // Delete old output dir
-      FileSystem hdfs = FileSystem.get(job.getConfiguration());
+      FileSystem hdfs = FileSystem.get(conf);
       Path path = new Path(outputDir);
       hdfs.delete(path, true);
     }
     System.out.println("Jar: " + job.getJar());
     
-    // Key/Value Type
-    job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(IntWritable.class);
+    job.setOutputKeyClass(IntWritable.class);
+    job.setOutputValueClass(VectorWritable.class);
   
     job.setMapperClass(Map.class);
-    // Optional: Use local combiner (we have a combinable reducer)
-    job.setCombinerClass(Reduce.class);
+//    job.setCombinerClass(Reduce.class);
     job.setReducerClass(Reduce.class);
   
     // Input/Output Format
@@ -107,9 +146,25 @@ public class RCV1Job extends Configured implements Tool {
     // Set number of mappers and reducers manually
     // Not done here, will be done via command line parameter
     //conf.setNumMapTasks(4);
-    //conf.setNumReduceTasks(2);
+//    job.setNumReduceTasks(4);
+    conf.setInt("mapred.reduce.tasks", 4);
+//    conf.setInt("mapred.tasktracker.reduce.tasks.maximum", 4);
     
     return job;
+  }
+
+  /**
+   * Copied from MahoutTestCase. Recursively deletes folder and contained files
+   */
+  private static class DeletingVisitor implements FileFilter {
+    
+    public boolean accept(File f) {
+      if (!f.isFile()) {
+        f.listFiles(this);
+      }
+      f.delete();
+      return false;
+    }
   }
 
 }
