@@ -1,31 +1,5 @@
 package com.celebihacker.ml.logreg;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.util.Version;
-import org.apache.mahout.classifier.sgd.L1;
-import org.apache.mahout.classifier.sgd.OnlineLogisticRegression;
-import org.apache.mahout.vectorizer.encoders.ConstantValueEncoder;
-import org.apache.mahout.vectorizer.encoders.Dictionary;
-import org.apache.mahout.vectorizer.encoders.FeatureVectorEncoder;
-import org.apache.mahout.vectorizer.encoders.StaticWordValueEncoder;
-
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Multiset;
 
 /**
  * NOT WORKING AT ALL!
@@ -34,54 +8,54 @@ import com.google.common.collect.Multiset;
  * Copied from https://github.com/tdunning/MiA/blob/master/src/main/java/mia/classifier/ch14/TrainNewsGroups.java
  * @author andre
  */
-public class LogReg20News {  
+public class LogReg20News {
   
-  private static final int FEATURES = 10000;
-  private static Multiset<String> overallCounts;
+//  private static final int FEATURES = 10000;
+//  private static Multiset<String> overallCounts;
 
   public void train20News() {
     
-    File base = new File("/home/andre/dev/datasets/20newsgroups/20news-bydate-train");
-//    File base = new File(args[0]);
-    overallCounts = HashMultiset.create();
-    
-    Map<String, Set<Integer>> traceDictionary = new TreeMap<String, Set<Integer>>();
-    FeatureVectorEncoder encoder = new StaticWordValueEncoder("body");
-    encoder.setProbes(2);
-    encoder.setTraceDictionary(traceDictionary);
-    FeatureVectorEncoder bias = new ConstantValueEncoder("Intercept");
-    bias.setTraceDictionary(traceDictionary);
-    FeatureVectorEncoder lines = new ConstantValueEncoder("Lines");
-    lines.setTraceDictionary(traceDictionary);
-    Dictionary newsGroups = new Dictionary();
-    
-    OnlineLogisticRegression learningAlgorithm =
-    new OnlineLogisticRegression(
-    20, FEATURES, new L1());
-    learningAlgorithm.alpha(1).stepOffset(1000)
-    .decayExponent(0.9)
-    .lambda(3.0e-5)
-    .learningRate(20);
-    
-    List<File> files = new ArrayList<File>();
-    for (File newsgroup : base.listFiles()) {
-      newsGroups.intern(newsgroup.getName());
-      files.addAll(Arrays.asList(newsgroup.listFiles()));
-    }
-    
-    
-    Collections.shuffle(files);
-    System.out.printf("%d training files\n", files.size());
-    
-    double averageLL = 0.0;
-    double averageCorrect = 0.0;
-    double averageLineCount = 0.0;
-    int k = 0;
-    double step = 0.0;
-    int[] bumps = new int[]{1, 2, 5};
-    double lineCount = 0;
-    
-    Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_31);
+//    File base = new File("/home/andre/dev/datasets/20newsgroups/20news-bydate-train");
+////    File base = new File(args[0]);
+//    overallCounts = HashMultiset.create();
+//    
+//    Map<String, Set<Integer>> traceDictionary = new TreeMap<String, Set<Integer>>();
+//    FeatureVectorEncoder encoder = new StaticWordValueEncoder("body");
+//    encoder.setProbes(2);
+//    encoder.setTraceDictionary(traceDictionary);
+//    FeatureVectorEncoder bias = new ConstantValueEncoder("Intercept");
+//    bias.setTraceDictionary(traceDictionary);
+//    FeatureVectorEncoder lines = new ConstantValueEncoder("Lines");
+//    lines.setTraceDictionary(traceDictionary);
+//    Dictionary newsGroups = new Dictionary();
+//    
+//    OnlineLogisticRegression learningAlgorithm =
+//    new OnlineLogisticRegression(
+//    20, FEATURES, new L1());
+//    learningAlgorithm.alpha(1).stepOffset(1000)
+//    .decayExponent(0.9)
+//    .lambda(3.0e-5)
+//    .learningRate(20);
+//    
+//    List<File> files = new ArrayList<File>();
+//    for (File newsgroup : base.listFiles()) {
+//      newsGroups.intern(newsgroup.getName());
+//      files.addAll(Arrays.asList(newsgroup.listFiles()));
+//    }
+//    
+//    
+//    Collections.shuffle(files);
+//    System.out.printf("%d training files\n", files.size());
+//    
+//    double averageLL = 0.0;
+//    double averageCorrect = 0.0;
+//    double averageLineCount = 0.0;
+//    int k = 0;
+//    double step = 0.0;
+//    int[] bumps = new int[]{1, 2, 5};
+//    double lineCount = 0;
+//    
+//    Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_31);
 
     /*
     for (File file : files) {
@@ -148,14 +122,14 @@ public class LogReg20News {
     */
   }
 
-  private static void countWords(Analyzer analyzer, Collection<String> words, Reader in) throws IOException {
-    TokenStream ts = analyzer.tokenStream("text", in);
-    ts.addAttribute(CharTermAttribute.class);
-    while (ts.incrementToken()) {
-    String s = ts.getAttribute(CharTermAttribute.class).toString();
-    words.add(s);
-    }
-    /*overallCounts.addAll(words);*/
-  }
+//  private static void countWords(Analyzer analyzer, Collection<String> words, Reader in) throws IOException {
+//    TokenStream ts = analyzer.tokenStream("text", in);
+//    ts.addAttribute(CharTermAttribute.class);
+//    while (ts.incrementToken()) {
+//    String s = ts.getAttribute(CharTermAttribute.class).toString();
+//    words.add(s);
+//    }
+//    /*overallCounts.addAll(words);*/
+//  }
 
 }

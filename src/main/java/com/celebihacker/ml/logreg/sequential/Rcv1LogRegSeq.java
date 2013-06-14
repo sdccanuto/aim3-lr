@@ -1,4 +1,4 @@
-package com.celebihacker.ml.logreg;
+package com.celebihacker.ml.logreg.sequential;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,9 +12,10 @@ import org.apache.mahout.math.RandomAccessSparseVector;
 import org.apache.mahout.math.Vector;
 
 import com.celebihacker.ml.MLUtils;
+import com.celebihacker.ml.logreg.RCV1VectorReader;
 import com.google.common.base.Stopwatch;
 
-public class LogRegRCV1Local {
+public class Rcv1LogRegSeq {
   
   private static final int FEATURES = 90000;
   private static final int TARGETS = 2;

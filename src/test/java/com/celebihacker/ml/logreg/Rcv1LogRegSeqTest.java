@@ -4,16 +4,16 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import com.celebihacker.ml.logreg.LogRegRCV1Local;
+import com.celebihacker.ml.logreg.sequential.Rcv1LogRegSeq;
 
-public class RCV1SeqLogRegTest {
+public class Rcv1LogRegSeqTest {
 
   @Test
   public void testTrainRCV1() throws IOException {
-    String trainingFile = "/home/andre/dev/datasets/RCV1-v2/vectors/lyrl2004_vectors_train.dat";
+    String trainingFile = "/home/andre/dev/datasets/RCV1-v2/vectors/lyrl2004_vectors_train_5000.dat";
     String testFile = "/home/andre/dev/datasets/RCV1-v2/vectors/lyrl2004_vectors_test_pt0.dat";
     
-    LogRegRCV1Local lr = new LogRegRCV1Local();
+    Rcv1LogRegSeq lr = new Rcv1LogRegSeq();
     lr.trainRCV1(trainingFile, testFile);
   }
 

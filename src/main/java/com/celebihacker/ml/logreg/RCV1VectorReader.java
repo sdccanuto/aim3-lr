@@ -12,6 +12,7 @@ import com.google.common.base.Splitter;
 
 public class RCV1VectorReader {
   
+  // For TRAC Format (see below)
   private static Splitter TRAC_SPLITTER = Splitter.on(Pattern.compile("[ :]"))
       .trimResults()
       .omitEmptyStrings();
@@ -39,6 +40,7 @@ public class RCV1VectorReader {
   }
 
   /**
+   * TODO Refactoring: Get rid of this method. Use single files instead
    * Reads targets from text file into vectors
    * 1 vector for each main category
    * CCAT(Corporate/Industrial)
@@ -65,6 +67,26 @@ public class RCV1VectorReader {
       }
       if (cat.equals("MCAT")) {
         yM.set(Integer.parseInt(iter.next()), 1d);
+      }
+    }
+    reader.close();
+  }
+  
+  /**
+   * Reads targets from text file into vectors
+   * Assumes that text file only contains labels for one Vector
+   */
+  public static void readTarget(Vector v, String filename, String categoryName) throws IOException {
+    
+    // Line format: ECAT 2286 1
+    BufferedReader reader = MLUtils.open(filename);
+    String line;
+    String cat;
+    while ((line = reader.readLine()) != null) {
+      Iterator<String> iter = SPACE_SPLITTER.split(line).iterator();
+      cat = iter.next();
+      if (cat.equals(categoryName)) {
+        v.set(Integer.parseInt(iter.next()), 1d);
       }
     }
     reader.close();
