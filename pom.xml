@@ -81,21 +81,24 @@
   		<version>4.8.1</version>
   	</dependency>
   	<dependency>
+		<groupId>log4j</groupId>
+		<artifactId>log4j</artifactId>
+		<version>1.2.17</version> <!-- Hadoop 1.0.4 has 1.2.15 included, latest version is 1.2.17 -->
+	</dependency>
+  	<dependency>
   		<groupId>org.apache.mahout</groupId>
   		<artifactId>mahout-core</artifactId>
-  		<!-- <version>0.7</version> -->
       	<version>0.8-SNAPSHOT</version>
   	</dependency>
   	<dependency>
   		<groupId>org.apache.mahout</groupId>
   		<artifactId>mahout-math</artifactId>
-  		<!-- <version>0.7</version> -->
       	<version>0.8-SNAPSHOT</version>
   	</dependency>
   	<dependency>
   		<groupId>org.apache.mahout</groupId>
   		<artifactId>mahout-integration</artifactId>
-  		<version>0.7</version>
+      	<version>0.8-SNAPSHOT</version>
   	</dependency>
   	<dependency>
   		<groupId>org.apache.commons</groupId>

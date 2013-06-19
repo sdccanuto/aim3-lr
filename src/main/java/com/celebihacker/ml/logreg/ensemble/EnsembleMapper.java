@@ -57,7 +57,9 @@ public class EnsembleMapper extends Mapper<Object, Text, IntWritable, VectorLabe
 
     // Randomly distribute to Reducers to get a random partitioning
     
-    // TODO: If Reducer uses SGD (Online, one-pass), we should also randomize the order within each partition!?
+    // TODO If Reducer uses SGD (Online, one-pass), we should also randomize the order within each partition!?
+    
+    // TODO Bug: Add custom partitioner to make sure that different partitions are sent to different reducers 
     
     curPartition.set(random.nextInt(numberReducers));
     currentLabeledVector.setVector(v);
