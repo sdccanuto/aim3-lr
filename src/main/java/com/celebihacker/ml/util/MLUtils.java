@@ -1,4 +1,4 @@
-package com.celebihacker.ml;
+package com.celebihacker.ml.util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -68,7 +68,7 @@ public class MLUtils {
     return true;
   }
   
-  static Vector meanByColumns(Matrix m) {
+  public static Vector meanByColumns(Matrix m) {
     Vector sums = m.aggregateColumns(new VectorFunction() {
       public double apply(Vector col) {
         return col.aggregate(Functions.PLUS, Functions.IDENTITY);
@@ -77,7 +77,7 @@ public class MLUtils {
     return sums.divide(m.numRows());
   }
   
-  static Vector rangeByColumns(Matrix m) {
+  public static Vector rangeByColumns(Matrix m) {
     Vector min = m.aggregateColumns(new VectorFunction() {
       public double apply(Vector f) {
         return f.minValue();
@@ -91,12 +91,12 @@ public class MLUtils {
     return max.minus(min);
   }
   
-  static Vector ones(int d) {
+  public static Vector ones(int d) {
     Vector v = new DenseVector(d);
     return v.assign(1);
   }
   
-  static Matrix diag(Vector diag) {
+  public static Matrix diag(Vector diag) {
     Matrix m = new DenseMatrix(diag.size(), diag.size());
     for (int i=0; i<diag.size(); ++i) {
       m.set(i, i, diag.get(i));
@@ -104,17 +104,17 @@ public class MLUtils {
     return m;
   }
   
-  static Matrix vectorToColumnMatrix(Vector vec) {
+  public static Matrix vectorToColumnMatrix(Vector vec) {
     Matrix m = new DenseMatrix(vec.size(), 1);
     return m.assignColumn(0, vec);
   }
   
-  static Matrix vectorToRowMatrix(Vector vec) {
+  public static Matrix vectorToRowMatrix(Vector vec) {
     Matrix m = new DenseMatrix(1, vec.size());
     return m.assignRow(0, vec);
   }
   
-  static void printDimensions(Matrix matrix) {
+  public static void printDimensions(Matrix matrix) {
     System.out.println("Size: " + matrix.rowSize() + "x" + matrix.columnSize());
   }
   
@@ -125,7 +125,7 @@ public class MLUtils {
    * @param data Input Matrix
    * @return pseudo-inverse of data matrix
    */
-  static Matrix pseudoInversebySVD(Matrix data) {
+  public static Matrix pseudoInversebySVD(Matrix data) {
     
     SingularValueDecomposition svd = new SingularValueDecomposition(data);
     
@@ -145,7 +145,7 @@ public class MLUtils {
     return svd.getV().times(S.transpose()).times(svd.getU().transpose());
   }
   
-  static Matrix inverse(Matrix data) {
+  public static Matrix inverse(Matrix data) {
     
     SingularValueDecomposition svd = new SingularValueDecomposition(data);
     

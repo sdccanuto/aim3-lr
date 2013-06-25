@@ -11,8 +11,8 @@ import org.apache.mahout.math.Matrix;
 import org.apache.mahout.math.RandomAccessSparseVector;
 import org.apache.mahout.math.Vector;
 
-import com.celebihacker.ml.MLUtils;
 import com.celebihacker.ml.logreg.RCV1VectorReader;
+import com.celebihacker.ml.util.MLUtils;
 import com.google.common.base.Stopwatch;
 
 public class Rcv1LogRegSeq {

@@ -1,4 +1,4 @@
-package com.celebihacker.ml;
+package com.celebihacker.ml.util;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -12,6 +12,12 @@ public class AdaptiveLogger {
   private boolean runLocal; // True in standalone/local mode
 
   private Logger logger;
+  
+  public AdaptiveLogger(boolean runLocal, Logger logger, Level level) {
+    this.runLocal = runLocal;
+    this.logger = logger;
+    setLevel(level);
+  }
   
   public AdaptiveLogger(boolean runLocal, Logger logger) {
     this.runLocal = runLocal;

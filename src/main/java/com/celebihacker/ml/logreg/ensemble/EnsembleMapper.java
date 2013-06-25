@@ -14,9 +14,9 @@ import org.apache.mahout.math.DenseVector;
 import org.apache.mahout.math.RandomAccessSparseVector;
 import org.apache.mahout.math.Vector;
 
-import com.celebihacker.ml.AdaptiveLogger;
 import com.celebihacker.ml.VectorLabeledWritable;
 import com.celebihacker.ml.logreg.RCV1VectorReader;
+import com.celebihacker.ml.util.AdaptiveLogger;
 
 public class EnsembleMapper extends Mapper<Object, Text, IntWritable, VectorLabeledWritable> {
   
@@ -34,11 +34,12 @@ public class EnsembleMapper extends Mapper<Object, Text, IntWritable, VectorLabe
   @Override
   protected void setup(Context context) throws IOException, InterruptedException {
     super.setup(context);
+    log.debug("Map Setup");
 
     log.setLevel(Level.DEBUG);
     
     numberReducers = Integer.parseInt(context.getConfiguration().get("mapred.reduce.tasks"));
-    log.debug("Number reducers: " + numberReducers);
+    log.debug("- Number partitions (=number reducers): " + numberReducers);
 
     // Read labels from distributed cache into memory (vector)
     Path[] files = DistributedCache.getLocalCacheFiles(context.getConfiguration());

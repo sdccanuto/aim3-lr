@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 import org.apache.mahout.math.Vector;
 
-import com.celebihacker.ml.MLUtils;
+import com.celebihacker.ml.util.MLUtils;
 import com.google.common.base.Splitter;
 
 public class RCV1VectorReader {

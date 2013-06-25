@@ -10,56 +10,37 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
-import org.apache.mahout.math.VectorWritable;
+import org.apache.mahout.common.IntPairWritable;
 
-import com.celebihacker.ml.VectorLabeledWritable;
-
-public class EnsembleJob extends Configured implements Tool {
+public class EvalJob extends Configured implements Tool {
 
   static final boolean RUN_LOCAL_MODE = true;
     
-  // 47236 is highest term id
-  static final int FEATURES = 47237;
-  // 381327 points labeled with CCAT (RCV1-v2)
-  // 810935 is highest document-id
-  static final int TOTAL = 810935;
-  static final int TARGETS = 2;
-  static final String TARGET_POSITIVE = "CCAT";
+  static final int REDUCE_TASKS = 1;
   
-  static final int REDUCE_TASKS = 4;
+  private static String JOB_NAME = "aim3-validation";
   
-  private static String JOB_NAME = "aim3-ensemble-train";
-  
-  static final String LABEL_FILE_LOCAL = "/home/andre/dev/datasets/RCV1-v2/rcv1-v2.topics_ccat.qrels";
-  static final String LABEL_FILE_HDFS = "rcv1-v2/rcv1-v2.topics_ccat.qrels";
-  private static final String INPUT_FILE_LOCAL = "/home/andre/dev/datasets/RCV1-v2/vectors/lyrl2004_vectors_train.dat";
+  private static final String INPUT_FILE_LOCAL = "/home/andre/dev/datasets/RCV1-v2/vectors/lyrl2004_vectors_test_pt0_5000.dat";
   private static final String INPUT_FILE_HDFS = "rcv1-v2/lyrl2004_vectors_train.dat";
   
-  static final String JAR_PATH = "target/aim3-logreg-0.0.1-SNAPSHOT-job.jar";
-  static final String CONFIG_FILE_PATH = "core-site.xml";
+  private static final String OUTPUT_PATH = "output-aim3";
   
-  static final String OUTPUT_PATH = "output-aim3-ensemble";
-  
-  /**
-   * Will be called from ToolRunner internally
-   * Hopefully passes us only the args after generic options
-   */
   public int run(String[] args) throws Exception {
 
     Job job = prepareJob();
 
     // Broadcast Labels as a vector to all Reducers
     if (RUN_LOCAL_MODE) {
-      DistributedCache.addCacheFile(new URI(LABEL_FILE_LOCAL), job.getConfiguration());
+      DistributedCache.addCacheFile(new URI(EnsembleJob.LABEL_FILE_LOCAL), job.getConfiguration());
     } else {
-      DistributedCache.addCacheFile(new URI(LABEL_FILE_HDFS), job.getConfiguration());
+      DistributedCache.addCacheFile(new URI(EnsembleJob.LABEL_FILE_HDFS), job.getConfiguration());
     }
     
     return job.waitForCompletion(true) ? 0 : 1;
@@ -78,17 +59,16 @@ public class EnsembleJob extends Configured implements Tool {
     String inputFile = "";
     if (RUN_LOCAL_MODE) {
       System.out.println("RUN IN LOCAL MODE");
-      new DeletingVisitor().accept(new File(OUTPUT_PATH));
       inputFile = INPUT_FILE_LOCAL;
+      new DeletingVisitor().accept(new File(OUTPUT_PATH));
     } else {
       System.out.println("RUN IN PSEUDO-DISTRIBUTED/CLUSTER MODE");
       inputFile = INPUT_FILE_HDFS;
-      conf.addResource(new Path(CONFIG_FILE_PATH));
+      conf.addResource(new Path(EnsembleJob.CONFIG_FILE_PATH));
       
       // This jar has all required dependencies in it. Must be built first (mvn package)!
-      conf.set("mapred.jar", JAR_PATH);
+      conf.set("mapred.jar", EnsembleJob.JAR_PATH);
       
-//      job.setNumReduceTasks(4);
       conf.setInt("mapred.reduce.tasks", REDUCE_TASKS);
       
       FileSystem hdfs = FileSystem.get(conf);
@@ -96,19 +76,19 @@ public class EnsembleJob extends Configured implements Tool {
       hdfs.delete(path, true);
     }
     System.out.println("Jar path: " + job.getJar());
-
-    job.setMapOutputKeyClass(IntWritable.class);
-    job.setMapOutputValueClass(VectorLabeledWritable.class);
-    job.setOutputKeyClass(IntWritable.class);
-    job.setOutputValueClass(VectorWritable.class);
+    
+    job.setMapOutputKeyClass(Text.class);
+    job.setMapOutputValueClass(IntPairWritable.class);
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(Text.class);
   
-    job.setMapperClass(EnsembleMapper.class);
+    job.setMapperClass(EvalMapper.class);
 //    job.setCombinerClass(Reduce.class);
-    job.setReducerClass(EnsembleReducer.class);
+    job.setReducerClass(EvalReducer.class);
   
     job.setInputFormatClass(TextInputFormat.class);
-    job.setOutputFormatClass(SequenceFileOutputFormat.class);
-  
+    job.setOutputFormatClass(TextOutputFormat.class);
+    
     // configure the used input/output format class.
     FileInputFormat.addInputPath(job, new Path(inputFile));
     FileOutputFormat.setOutputPath(job, new Path(OUTPUT_PATH));

@@ -9,11 +9,13 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.mahout.classifier.sgd.L1;
 import org.apache.mahout.classifier.sgd.OnlineLogisticRegression;
+import org.apache.mahout.math.RandomAccessSparseVector;
 import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 
-import com.celebihacker.ml.AdaptiveLogger;
 import com.celebihacker.ml.VectorLabeledWritable;
+import com.celebihacker.ml.util.AdaptiveLogger;
+import com.celebihacker.ml.validation.OnlineAccuracy;
 
 public class EnsembleReducer extends Reducer<IntWritable, VectorLabeledWritable, IntWritable, VectorWritable> {
   
@@ -39,27 +41,23 @@ public class EnsembleReducer extends Reducer<IntWritable, VectorLabeledWritable,
     .lambda(3.0e-5)
     .learningRate(20);
 
-    int total = 0;
-    int correct = 0;
+    OnlineAccuracy accuracy = new OnlineAccuracy(0.5);
     for (VectorLabeledWritable lVec : values) {
       
       // Test prediction
       int actualTarget = lVec.getLabel();
       Vector vec = lVec.getVector();
       double prediction = learningAlgorithm.classifyScalar(vec);
-      if (actualTarget == Math.round(prediction)) ++correct;
+      accuracy.addSample(actualTarget, prediction);
 
       learningAlgorithm.train(actualTarget, vec);
-      
-      ++total;
     }
     log.debug("ONLINE TRAINING RESULTS:");
-    log.debug("Total: " + total);
-    log.debug("Correct: " + correct);
-    log.debug("Accuracy: " + ((double)correct)/((double)total));
+    log.debug("Accuracy: " + accuracy.getAccuracy() + " (= " + (accuracy.getTrueNegatives() + accuracy.getTruePositives()) + " / " + accuracy.getTotal() + ")");
     learningAlgorithm.close();
     
-    context.write(key, new VectorWritable(learningAlgorithm.getBeta().viewRow(0)));
+    RandomAccessSparseVector w = new RandomAccessSparseVector(learningAlgorithm.getBeta().viewRow(0));
+    context.write(key, new VectorWritable(w));
   }
 
 }
