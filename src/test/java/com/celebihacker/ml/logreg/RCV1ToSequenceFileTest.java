@@ -8,8 +8,8 @@ import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 import org.junit.Test;
 
-import com.celebihacker.ml.IDAndLabels;
-import com.celebihacker.ml.logreg.preprocess.RCV1ToSequenceFile;
+import com.celebihacker.ml.preprocess.RCV1ToSequenceFile;
+import com.celebihacker.ml.writables.IDAndLabels;
 
 public class RCV1ToSequenceFileTest {
 

@@ -1,4 +1,4 @@
-package com.celebihacker.ml.logreg.datasets;
+package com.celebihacker.ml.datasets;
 
 import java.io.BufferedReader;
 import java.io.IOException;

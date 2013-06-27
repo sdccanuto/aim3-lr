@@ -11,10 +11,10 @@ import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 import org.apache.mahout.math.function.Functions;
 
-import com.celebihacker.ml.IDAndLabels;
 import com.celebihacker.ml.logreg.GradientJobTest;
 import com.celebihacker.ml.logreg.LogisticRegression;
 import com.celebihacker.ml.util.AdaptiveLogger;
+import com.celebihacker.ml.writables.IDAndLabels;
 
 public class GradientMapper extends Mapper<IDAndLabels, VectorWritable, NullWritable, VectorWritable> {
   

@@ -1,8 +1,7 @@
-package com.celebihacker.ml.logreg.datasets;
+package com.celebihacker.ml.datasets;
 
 import java.util.Map;
 
-import com.celebihacker.ml.DatasetInfo;
 import com.google.common.collect.ImmutableMap;
 
 /**

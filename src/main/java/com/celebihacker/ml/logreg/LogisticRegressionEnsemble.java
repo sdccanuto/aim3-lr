@@ -11,6 +11,12 @@ import com.celebihacker.ml.ClassificationModel;
 import com.celebihacker.ml.RegressionModel;
 import com.celebihacker.ml.util.MLUtils;
 
+/**
+ * Implementation of a ensemble model for Logistic Regression
+ * Internally it has multiple logistic regression models
+ * Those are combined to a single prediction (supporting different VotingSchemas)
+ * 
+ */
 public class LogisticRegressionEnsemble implements ClassificationModel, RegressionModel {
   
   List<RandomAccessSparseVector> models;

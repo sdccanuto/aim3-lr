@@ -18,13 +18,13 @@ import org.apache.mahout.common.IntPairWritable;
 import org.apache.mahout.math.RandomAccessSparseVector;
 import org.apache.mahout.math.VectorWritable;
 
-import com.celebihacker.ml.IDAndLabels;
 import com.celebihacker.ml.RegressionModel;
 import com.celebihacker.ml.logreg.EnsembleJobTest;
 import com.celebihacker.ml.logreg.LogisticRegressionEnsemble;
 import com.celebihacker.ml.logreg.LogisticRegressionEnsemble.VotingSchema;
 import com.celebihacker.ml.util.AdaptiveLogger;
 import com.celebihacker.ml.validation.OnlineAccuracy;
+import com.celebihacker.ml.writables.IDAndLabels;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;

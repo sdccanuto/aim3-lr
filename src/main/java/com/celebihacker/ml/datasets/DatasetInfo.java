@@ -1,4 +1,4 @@
-package com.celebihacker.ml;
+package com.celebihacker.ml.datasets;
 
 import java.util.List;
 import java.util.Map;
@@ -11,8 +11,9 @@ import com.google.common.collect.Lists;
  * Provides additional information about a model (usually meta data)
  * E.g. mapping from feature dimension to feature name, number of features or size
  * 
+ * For MapReduce we can make static instances of this class,
+ *  that are accessible also from Mappers and Reducers
  * 
- * TODO Add option for unnamed model (e.g. for performance reasons we don't want the term-id -> term mapping)
  */
 public class DatasetInfo {
   

@@ -1,4 +1,4 @@
-package com.celebihacker.ml;
+package com.celebihacker.ml.writables;
 
 import java.io.DataInput;
 import java.io.DataOutput;

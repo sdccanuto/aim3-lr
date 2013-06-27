@@ -17,9 +17,9 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.mahout.math.VectorWritable;
 
-import com.celebihacker.ml.DatasetInfo;
-import com.celebihacker.ml.VectorMultiLabeledWritable;
-import com.celebihacker.ml.logreg.datasets.RCV1DatasetInfo;
+import com.celebihacker.ml.datasets.DatasetInfo;
+import com.celebihacker.ml.datasets.RCV1DatasetInfo;
+import com.celebihacker.ml.writables.VectorMultiLabeledWritable;
 
 public class EnsembleJob extends Configured implements Tool {
 

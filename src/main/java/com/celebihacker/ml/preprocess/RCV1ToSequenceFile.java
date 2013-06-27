@@ -1,4 +1,4 @@
-package com.celebihacker.ml.logreg.preprocess;
+package com.celebihacker.ml.preprocess;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -13,10 +13,10 @@ import org.apache.mahout.math.RandomAccessSparseVector;
 import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 
-import com.celebihacker.ml.IDAndLabels;
-import com.celebihacker.ml.logreg.datasets.RCV1DatasetInfo;
-import com.celebihacker.ml.logreg.datasets.RCV1VectorReader;
+import com.celebihacker.ml.datasets.RCV1DatasetInfo;
+import com.celebihacker.ml.datasets.RCV1VectorReader;
 import com.celebihacker.ml.util.MLUtils;
+import com.celebihacker.ml.writables.IDAndLabels;
 import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 

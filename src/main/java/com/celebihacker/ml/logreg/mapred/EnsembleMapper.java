@@ -9,10 +9,10 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.mahout.math.VectorWritable;
 
-import com.celebihacker.ml.IDAndLabels;
-import com.celebihacker.ml.VectorMultiLabeledWritable;
 import com.celebihacker.ml.logreg.EnsembleJobTest;
 import com.celebihacker.ml.util.AdaptiveLogger;
+import com.celebihacker.ml.writables.IDAndLabels;
+import com.celebihacker.ml.writables.VectorMultiLabeledWritable;
 
 public class EnsembleMapper extends Mapper<IDAndLabels, VectorWritable, IntWritable, VectorMultiLabeledWritable> {
   

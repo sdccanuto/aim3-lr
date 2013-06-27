@@ -12,10 +12,10 @@ import org.apache.mahout.math.RandomAccessSparseVector;
 import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 
-import com.celebihacker.ml.VectorMultiLabeledWritable;
 import com.celebihacker.ml.logreg.EnsembleJobTest;
 import com.celebihacker.ml.util.AdaptiveLogger;
 import com.celebihacker.ml.validation.OnlineAccuracy;
+import com.celebihacker.ml.writables.VectorMultiLabeledWritable;
 
 public class EnsembleReducer extends Reducer<IntWritable, VectorMultiLabeledWritable, IntWritable, VectorWritable> {
   
