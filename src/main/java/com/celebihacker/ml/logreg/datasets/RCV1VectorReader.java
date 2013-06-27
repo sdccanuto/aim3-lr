@@ -1,4 +1,4 @@
-package com.celebihacker.ml.logreg;
+package com.celebihacker.ml.logreg.datasets;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -48,9 +48,9 @@ public class RCV1VectorReader {
    * GCAT(Government/Social)
    * MCAT(Markets)
    */
-  public static  void readTargets(Vector yC, Vector yE, Vector yG, Vector yM) throws IOException {
+  public static  void readLabels(String path, Vector yC, Vector yE, Vector yG, Vector yM) throws IOException {
     // Line format: ECAT 2286 1
-    BufferedReader reader = MLUtils.open("/home/andre/dev/datasets/RCV1-v2/rcv1-v2.topics.qrels");
+    BufferedReader reader = MLUtils.open(path);
     String line;
     String cat;
     while ((line = reader.readLine()) != null) {
@@ -76,7 +76,7 @@ public class RCV1VectorReader {
    * Reads targets from text file into vectors
    * Assumes that text file only contains labels for one Vector
    */
-  public static void readTarget(Vector v, String filename, String categoryName) throws IOException {
+  public static void readLabels(Vector v, String filename, String categoryName) throws IOException {
     
     // Line format: ECAT 2286 1
     BufferedReader reader = MLUtils.open(filename);

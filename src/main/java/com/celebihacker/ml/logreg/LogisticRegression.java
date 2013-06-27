@@ -10,6 +10,8 @@ import com.celebihacker.ml.RegressionModel;
  * Functions related to Logistic Regression, mostly for training and evaluation
  * Can be used as instance of a concrete model, but also offers public static methods.
  * 
+ * TODO Make a separate class just with static methods
+ * 
  * @author andre
  */
 public class LogisticRegression implements RegressionModel, ClassificationModel {
@@ -45,6 +47,17 @@ public class LogisticRegression implements RegressionModel, ClassificationModel 
   public int classify(Vector x) {
     return (int)Math.floor(predict(x) + threshold);
   }
+
+  /**
+   * Compute the partial gradient of negative log-likelihood function regarding a single data point x
+   * @return ( h(x) - y) * x
+   */
+  public Vector computePartialGradient(Vector x, double y) {
+    double diff = predict(x) - y;
+    
+    return x.times(diff);
+  }
+
   
   public void setW(Vector w) {
     this.w = w;

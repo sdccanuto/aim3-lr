@@ -1,10 +1,9 @@
-package com.celebihacker.ml.logreg.ensemble;
+package com.celebihacker.ml.logreg.mapred;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -16,27 +15,26 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.mahout.common.IntPairWritable;
-import org.apache.mahout.math.DenseVector;
 import org.apache.mahout.math.RandomAccessSparseVector;
-import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 
+import com.celebihacker.ml.IDAndLabels;
 import com.celebihacker.ml.RegressionModel;
+import com.celebihacker.ml.logreg.EnsembleJobTest;
 import com.celebihacker.ml.logreg.LogisticRegressionEnsemble;
 import com.celebihacker.ml.logreg.LogisticRegressionEnsemble.VotingSchema;
-import com.celebihacker.ml.logreg.RCV1VectorReader;
 import com.celebihacker.ml.util.AdaptiveLogger;
 import com.celebihacker.ml.validation.OnlineAccuracy;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 
-public class EvalMapper extends Mapper<Object, Text, Text, IntPairWritable> {
+public class EvalMapper extends Mapper<IDAndLabels, VectorWritable, Text, IntPairWritable> {
   
   private static AdaptiveLogger log = new AdaptiveLogger(
-      EnsembleJob.RUN_LOCAL_MODE, Logger.getLogger(EvalMapper.class.getName()), Level.DEBUG); 
+      EnsembleJobTest.RUN_LOCAL_MODE, Logger.getLogger(EvalMapper.class.getName()), Level.DEBUG); 
   
-  private Vector y;
+//  private Vector y;
   
   private double THRESHOLD = 0.5;
   private Map<String, RegressionModel> models = Maps.newHashMap();
@@ -46,19 +44,15 @@ public class EvalMapper extends Mapper<Object, Text, Text, IntPairWritable> {
   protected void setup(Context context) throws IOException, InterruptedException {
     super.setup(context);
     log.debug("Eval Setup");
+    
     // Read trained models from previous job output
     readEnsembleModels(context);
-
-    // Read labels from distributed cache into memory (vector)
-    Path[] files = DistributedCache.getLocalCacheFiles(context.getConfiguration());
-    y = new DenseVector(EnsembleJob.TOTAL);
-    RCV1VectorReader.readTarget(y, files[0].toString(), EnsembleJob.TARGET_POSITIVE);
   }
   
   private void readEnsembleModels(Context context) throws IOException {
     
     // TODO Make this generic for ensemble, global and majority. Build model classes for each with own prediction method
-    Path dir = new Path(EnsembleJob.OUTPUT_PATH);
+    Path dir = new Path(EnsembleJobTest.OUTPUT_TRAIN_PATH);
     FileSystem fs = FileSystem.get(context.getConfiguration());
     FileStatus[] statusList = fs.listStatus(dir, new PathFilter() {
       @Override
@@ -108,15 +102,14 @@ public class EvalMapper extends Mapper<Object, Text, Text, IntPairWritable> {
   }
 
   @Override
-  public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-    // Read text into vector
-    Vector v = new RandomAccessSparseVector(EnsembleJob.FEATURES);
-    int docId = RCV1VectorReader.readRCV1Vector(v, value.toString());
+  public void map(IDAndLabels key, VectorWritable value, Context context) throws IOException, InterruptedException {
     
     // Evaluate accuracy of all models
     for (Map.Entry<String, RegressionModel> model : models.entrySet()) {
-      double prediction = model.getValue().predict(v);
-      accuracies.get(model.getKey()).addSample((int)y.get(docId), prediction);
+      double prediction = model.getValue().predict(value.get());
+      accuracies.get(model.getKey()).addSample(
+          (int)key.getLabels().get(EnsembleReducer.LABEL_DIMENSION),
+          prediction);
     }
   }
   

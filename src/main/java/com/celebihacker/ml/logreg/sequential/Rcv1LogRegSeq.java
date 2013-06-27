@@ -11,7 +11,7 @@ import org.apache.mahout.math.Matrix;
 import org.apache.mahout.math.RandomAccessSparseVector;
 import org.apache.mahout.math.Vector;
 
-import com.celebihacker.ml.logreg.RCV1VectorReader;
+import com.celebihacker.ml.logreg.datasets.RCV1VectorReader;
 import com.celebihacker.ml.util.MLUtils;
 import com.google.common.base.Stopwatch;
 
@@ -45,7 +45,7 @@ public class Rcv1LogRegSeq {
     Vector yE = new DenseVector(totalItems);
     Vector yG = new DenseVector(totalItems);
     Vector yM = new DenseVector(totalItems);
-    RCV1VectorReader.readTargets(yC, yE, yG, yM);
+    RCV1VectorReader.readLabels("/home/andre/dev/datasets/RCV1-v2/rcv1-v2.topics.qrels", yC, yE, yG, yM);
     System.out.println("Reading targets: " + stop.stop().toString());
     Vector y = yC;  // We only train a one-vs-all classifier for a single category
     
