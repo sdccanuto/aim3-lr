@@ -1,54 +1,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <groupId>com.celebihacker</groupId>
-  <artifactId>aim3-logreg</artifactId>
+  <artifactId>aim3</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>Logistic Regression AIM3</name>
+  <name>AIM3 Logistic Regression Project</name>
+
+  <packaging>pom</packaging>
   
+  <modules>
+    <module>aim3-logreg</module>
+  </modules>
+
   <build>
     <plugins>
-    <!--
-    Create hadoop job jar with all dependencies
-    Needed to run this jar in a distributed environment
-    Copied from https://github.com/tdunning/MiA/blob/master/pom.xml
-    See http://stackoverflow.com/questions/11479600/how-do-i-build-run-this-simple-mahout-program-without-getting-exceptions
-    
-    See http://maven.apache.org/guides/mini/guide-assemblies.html for assembly documentation 
-     -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>job</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-            <configuration>
-              <descriptors>
-                <descriptor>src/main/assembly/job.xml</descriptor>
-              </descriptors>
-            </configuration>
-          </execution>
-          <!-- don't need that one with all dependencies -->
-          <!-- 
-          <execution>
-            <id>my-jar-with-dependencies</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-            <configuration>
-              <descriptorRefs>
-                <descriptorRef>jar-with-dependencies</descriptorRef>
-              </descriptorRefs>
-            </configuration>
-          </execution>
-          -->
-        </executions>
-      </plugin>
-      <!-- Default java version is 1.5, however we want 1.6 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -60,6 +25,7 @@
       </plugin>
     </plugins>
   </build>
+
   <repositories>
     <repository>
       <id>MavenCentral</id>
@@ -126,6 +92,8 @@
   		<version>14.0.1</version>
   	</dependency>
   </dependencies>
+
   <properties>
   </properties>
+
 </project>

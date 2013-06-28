@@ -23,7 +23,7 @@ public class RCV1ToSequenceFileTest {
     RCV1ToSequenceFile.transform(folderPath, trainingOutputPath, testOutputPath, -1);
 
     // Produce a smaller version
-    int limit = 10000;
+    int limit = 5000;
     String smallTrainingOutputPath = folderPath + "vectors/lyrl2004_vectors_train_" + limit + ".seq";
     String smallTestOutputPath = folderPath + "vectors/lyrl2004_vectors_test_" + limit + ".seq";
     RCV1ToSequenceFile.transform(folderPath, smallTrainingOutputPath, smallTestOutputPath, limit);
