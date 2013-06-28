@@ -38,10 +38,10 @@ public class RCV1DatasetInfo {
   private static final int TOTAL = 810935;
   
   private static final Map<Integer, String> labelMap = ImmutableMap.of(
-      1, "CCAT",
-      2, "ECAT",
-      3, "GCAT",
-      4, "MCAT"
+      0, "CCAT",
+      1, "ECAT",
+      2, "GCAT",
+      3, "MCAT"
       );
 
   private static DatasetInfo datasetInfo = new DatasetInfo(NUM_FEATURES, VECTOR_SIZE, TOTAL, labelMap);
