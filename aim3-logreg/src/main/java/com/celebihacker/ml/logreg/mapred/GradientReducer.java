@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.mahout.math.RandomAccessSparseVector;
@@ -26,7 +27,15 @@ public class GradientReducer extends Reducer<NullWritable, VectorWritable, NullW
     for (VectorWritable gradient : values) {
       batchGradientSum.assign(gradient.get(), Functions.PLUS);
     }
+    
     log.debug("Gradient result: Dimensions: " + batchGradientSum.size() + " Non Zero: " + batchGradientSum.getNumNonZeroElements());
+    context.write(NullWritable.get(), new VectorWritable(batchGradientSum));
   }
 
+  
+  @Override
+  protected void cleanup(Context context)
+      throws IOException, InterruptedException {
+    super.cleanup(context);
+  }
 }
