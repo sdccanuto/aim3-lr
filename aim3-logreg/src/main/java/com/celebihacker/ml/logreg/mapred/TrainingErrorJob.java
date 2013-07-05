@@ -146,6 +146,10 @@ public class TrainingErrorJob extends Configured implements Tool {
 
     return job;
   }
+  
+  public String getOutputPath() {
+    return this.outputPath;
+  }
  
   /**
    * Copied from MahoutTestCase. Recursively deletes folder and contained files

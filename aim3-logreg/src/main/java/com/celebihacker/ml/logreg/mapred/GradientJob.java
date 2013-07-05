@@ -40,6 +40,7 @@ public class GradientJob extends Configured implements Tool {
   private String jarPath;
   private String configFilePath;
   private String outputPath;
+
   private boolean runLocalMode;
   private final VectorWritable weights;
 
@@ -143,6 +144,10 @@ public class GradientJob extends Configured implements Tool {
     FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
     return job;
+  }
+  
+  public String getOutputPath() {
+    return this.outputPath;
   }
 
   /**
