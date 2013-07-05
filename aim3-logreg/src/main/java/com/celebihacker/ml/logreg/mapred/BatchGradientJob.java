@@ -3,7 +3,6 @@ package com.celebihacker.ml.logreg.mapred;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.net.URI;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -13,6 +12,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.PathFilter;
 import org.apache.hadoop.io.NullWritable;
+import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
@@ -21,6 +21,8 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.mahout.math.SequentialAccessSparseVector;
+import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 
 import com.celebihacker.ml.datasets.DatasetInfo;
@@ -51,6 +53,8 @@ public class BatchGradientJob extends Configured implements Tool {
   private boolean runLocalMode;
   private final int maxIterations;
 
+  private final VectorWritable weights;
+
   public static final DatasetInfo rcv1 = RCV1DatasetInfo.get();
   private static final Joiner pathJoiner = Joiner.on("/");
 
@@ -69,6 +73,22 @@ public class BatchGradientJob extends Configured implements Tool {
     this.runLocalMode = runLocalMode;
 
     this.maxIterations = maxIterations;
+
+    Vector vec = new SequentialAccessSparseVector((int) rcv1.getNumFeatures());
+
+    this.weights = new VectorWritable(vec);
+  }
+
+  public void setWeightVector(double initial) {
+    this.weights.get().assign(initial);
+  }
+
+  public void setWeightVector(double[] weights) {
+    this.weights.get().assign(weights);
+  }
+
+  public void setWeightVector(Vector weights) {
+    this.weights.get().assign(weights);
   }
 
   @Override
@@ -87,6 +107,8 @@ public class BatchGradientJob extends Configured implements Tool {
       Path iterationPath = new Path(pathJoiner.join(this.outputPath, "iteration" + i));
       FileOutputFormat.setOutputPath(job, iterationPath);
 
+      Path toCache;
+      
       if (i == 0) {
 
         // Remove data from previous runs
@@ -95,24 +117,33 @@ public class BatchGradientJob extends Configured implements Tool {
         } else {
           fs.delete(new Path(this.outputPath), true);
         }
-
+        
+        // Initial weights
+        Configuration conf = new Configuration();
+        toCache = new Path(pathJoiner.join(conf.get("hadoop.tmp.dir"), "initial_weights"));
+        
+        SequenceFile.Writer writer = SequenceFile.createWriter(FileSystem.getLocal(conf), conf,
+            toCache, NullWritable.class, VectorWritable.class);
+        
+        writer.append(NullWritable.get(), this.weights);
+        
+        writer.close();
+        
       } else {
 
         // Add weights of previous iteration to DistributedCache
         Path prevIterationPath = new Path(pathJoiner.join(this.outputPath, "iteration" + (i - 1)));
-        LOGGER.debug("> output of previous iteration in " + prevIterationPath.toUri());
+        FileStatus[] prevIterationWeights = fs.listStatus(prevIterationPath, new IterationOutputFilter());
+        toCache = prevIterationWeights[0].getPath();
 
-        FileStatus[] prevIterationWeights = fs.listStatus(prevIterationPath,
-            new IterationOutputFilter());
-
-        URI uri = prevIterationWeights[0].getPath().toUri();
-        DistributedCache.addCacheFile(uri, job.getConfiguration());
-
-        LOGGER.debug("> added " + uri + " to DistributedCache");
       }
 
+      // Add to distributed cache
+      DistributedCache.addCacheFile(toCache.toUri(), job.getConfiguration());
+      LOGGER.debug("> added " + toCache.toUri() + " to DistributedCache");
+      
       // execute job
-      hasSucceeded[i] = job.waitForCompletion(true);
+      hasSucceeded[i] = job.waitForCompletion(false);
       LOGGER.debug("> completed iteration? " + hasSucceeded[i]);
     }
 
