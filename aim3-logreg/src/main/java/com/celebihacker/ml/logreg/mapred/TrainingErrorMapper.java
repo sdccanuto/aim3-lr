@@ -8,15 +8,12 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.mahout.common.Pair;
 import org.apache.mahout.common.iterator.sequencefile.SequenceFileIterable;
 import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 
-import com.celebihacker.ml.logreg.GradientJobTest;
-import com.celebihacker.ml.util.AdaptiveLogger;
+import com.celebihacker.ml.logreg.LogisticRegressionHelper;
 import com.celebihacker.ml.writables.IDAndLabels;
 
 public class TrainingErrorMapper extends
@@ -25,11 +22,7 @@ public class TrainingErrorMapper extends
   static final int LABEL_DIMENSION = EnsembleJob.datasetInfo
       .getLabelIdByName(EnsembleJob.TARGET_POSITIVE);
 
-  private static AdaptiveLogger LOGGER = new AdaptiveLogger(
-      GradientJobTest.RUN_LOCAL_MODE, Logger.getLogger(TrainingErrorMapper.class.getName()),
-      Level.DEBUG);
-
-  private Vector weights;
+  private Vector w;
   private DoubleWritable trainingError = new DoubleWritable();
 
   @Override
@@ -47,7 +40,7 @@ public class TrainingErrorMapper extends
     for (Pair<NullWritable, VectorWritable> weights : new SequenceFileIterable<NullWritable, VectorWritable>(
         localPath, conf)) {
 
-      this.weights = weights.getSecond().get();
+      this.w = weights.getSecond().get();
     }
   }
 
@@ -58,13 +51,8 @@ public class TrainingErrorMapper extends
     Vector x = value.get();
     double y = key.getLabels().get(LABEL_DIMENSION);
 
-    double diff = predict(x, this.weights) - y;
-    this.trainingError.set(Math.pow(diff, 2));
-    
-    context.write(NullWritable.get(), this.trainingError);
-  }
+    this.trainingError.set(LogisticRegressionHelper.computeError(x, this.w, y));
 
-  public double predict(Vector x, Vector w) {
-    return 1.0 / (1.0 + Math.exp(-x.dot(w)));
+    context.write(NullWritable.get(), this.trainingError);
   }
 }

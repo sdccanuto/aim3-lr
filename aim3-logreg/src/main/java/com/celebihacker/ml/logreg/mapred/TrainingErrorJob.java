@@ -41,7 +41,7 @@ public class TrainingErrorJob extends Configured implements Tool {
   private String outputPath;
 
   private boolean runLocalMode;
-  private final VectorWritable weights;
+  private final VectorWritable w;
 
   private static final Joiner pathJoiner = Joiner.on("/");
 
@@ -58,8 +58,8 @@ public class TrainingErrorJob extends Configured implements Tool {
     this.configFilePath = configFilePath;
     this.runLocalMode = runLocalMode;
 
-    Vector vec = new SequentialAccessSparseVector((int) RCV1DatasetInfo.get().getNumFeatures());
-    this.weights = new VectorWritable(vec);
+    Vector weights = new SequentialAccessSparseVector((int) RCV1DatasetInfo.get().getNumFeatures());
+    this.w = new VectorWritable(weights);
   }
 
   @Override
@@ -74,7 +74,7 @@ public class TrainingErrorJob extends Configured implements Tool {
     SequenceFile.Writer writer = SequenceFile.createWriter(FileSystem.getLocal(conf), conf,
         toCache, NullWritable.class, VectorWritable.class);
     
-    writer.append(NullWritable.get(), this.weights);
+    writer.append(NullWritable.get(), this.w);
     writer.close();
 
     // Add to distributed cache
@@ -84,15 +84,15 @@ public class TrainingErrorJob extends Configured implements Tool {
   }
 
   public void setWeightVector(double initial) {
-    this.weights.get().assign(initial);
+    this.w.get().assign(initial);
   }
 
   public void setWeightVector(double[] weights) {
-    this.weights.get().assign(weights);
+    this.w.get().assign(weights);
   }
 
   public void setWeightVector(Vector weights) {
-    this.weights.get().assign(weights);
+    this.w.get().assign(weights);
   }
 
   private Job prepareJob() throws IOException {

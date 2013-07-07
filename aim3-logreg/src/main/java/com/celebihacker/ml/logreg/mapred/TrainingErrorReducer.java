@@ -28,7 +28,7 @@ public class TrainingErrorReducer extends
       trainingError += partialTrainingError.get();
     }
 
-    LOGGER.debug("Training error: " + trainingError);
+    LOGGER.debug("TrainingErrorReducer: training error of " + trainingError);
 
     context.write(NullWritable.get(), new DoubleWritable(trainingError));
   }
