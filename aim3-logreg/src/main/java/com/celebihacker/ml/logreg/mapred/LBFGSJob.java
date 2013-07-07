@@ -1,15 +1,12 @@
 package com.celebihacker.ml.logreg.mapred;
 
-import java.util.Arrays;
-
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.util.Tool;
 
-import edu.stanford.nlp.optimization.DiffFunction;
 import edu.stanford.nlp.optimization.QNMinimizer;
 
 /**
- * Batch gradient for logistic regression
+ * L-BFGS with MR implementation of DiffFunction.
  */
 public class LBFGSJob extends Configured implements Tool {
 
@@ -20,24 +17,35 @@ public class LBFGSJob extends Configured implements Tool {
   private double[] initial;
 
   public LBFGSJob(TrainingErrorJob trainingErrorJob, GradientJob gradientJob, 
-      double eps, int maxIterations, double[] initial) {
+      double eps, double[] initial) {
+
+    this(trainingErrorJob, gradientJob, eps, initial, 0);
+  }
+  
+  public LBFGSJob(TrainingErrorJob trainingErrorJob, GradientJob gradientJob, 
+      double eps, double[] initial, int maxIterations) {
 
     this.trainingErrorJob = trainingErrorJob;
     this.gradientJob = gradientJob;
     this.eps = eps;
-    this.maxIterations = maxIterations;
     this.initial = initial;
+    this.maxIterations = maxIterations;
   }
 
   @Override
   public int run(String[] args) throws Exception {
     
-    DiffFunction f = new LBFGSDiffFunction(this.trainingErrorJob, this.gradientJob);
+    LBFGSDiffFunction f = new LBFGSDiffFunction(this.trainingErrorJob, this.gradientJob);
     
     QNMinimizer qn = new QNMinimizer(15, true);
-    double[] model = qn.minimize(f, this.eps, this.initial, this.maxIterations);
     
-    System.out.println(Arrays.toString(model));
+    double[] model;
+    
+    if (this.maxIterations == 0) {
+      model = qn.minimize(f, this.eps, this.initial);      
+    } else {
+      model = qn.minimize(f, this.eps, this.initial, this.maxIterations);            
+    }
     
     return 0;
   }

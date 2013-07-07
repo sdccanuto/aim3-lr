@@ -1,6 +1,7 @@
 package com.celebihacker.ml.logreg.mapred;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -23,7 +24,9 @@ import com.celebihacker.ml.util.AdaptiveLogger;
 import edu.stanford.nlp.optimization.DiffFunction;
 
 /**
- * Batch gradient for logistic regression
+ * Logistic Regression objective function for QNMinimizer.
+ * 
+ * Computation of valueAt(double[]) and derivativeAt(double[]) spawn MR jobs.
  */
 public class LBFGSDiffFunction implements DiffFunction {
 
@@ -38,6 +41,8 @@ public class LBFGSDiffFunction implements DiffFunction {
     this.trainingErrorJob = trainingErrorJob;
     this.gradientJob = gradientJob;
   }
+
+  public static HashMap<Integer, Integer> count = new HashMap<Integer, Integer>();
 
   @Override
   public double valueAt(double[] weights) {
@@ -71,7 +76,7 @@ public class LBFGSDiffFunction implements DiffFunction {
       e.printStackTrace();
     }
 
-    return 0;
+    throw new RuntimeException();
   }
 
   @Override

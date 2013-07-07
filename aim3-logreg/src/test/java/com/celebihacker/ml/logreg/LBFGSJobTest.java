@@ -40,11 +40,10 @@ public class LBFGSJobTest {
         RUN_LOCAL_MODE);
 
     double eps = 0.1;
-    int maxIterations = 5;
 
     double[] initial = new double[(int) RCV1DatasetInfo.get().getNumFeatures()];
 
-    LBFGSJob lbfgs = new LBFGSJob(trainingErrorJob, gradientJob, eps, maxIterations, initial);
+    LBFGSJob lbfgs = new LBFGSJob(trainingErrorJob, gradientJob, eps, initial);
 
     ToolRunner.run(lbfgs, null);
   }
