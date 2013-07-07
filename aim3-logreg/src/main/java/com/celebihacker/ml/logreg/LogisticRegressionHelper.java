@@ -13,6 +13,10 @@ public class LogisticRegressionHelper {
   public static double predict(Vector x, Vector w) {
     return logisticFunction(x.dot(w));
   }
+  
+  public static double predict(Vector x, Vector w, double intercept) {
+    return logisticFunction(x.dot(w) + intercept);
+  }
 
   public static Vector computePartialGradient(Vector x, Vector w, double y) {
     return x.times(predict(x, w) - y);
