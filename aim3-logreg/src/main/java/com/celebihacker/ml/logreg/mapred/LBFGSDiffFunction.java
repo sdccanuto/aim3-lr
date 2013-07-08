@@ -18,7 +18,6 @@ import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 
 import com.celebihacker.ml.datasets.RCV1DatasetInfo;
-import com.celebihacker.ml.logreg.BatchGradientJobTest;
 import com.celebihacker.ml.util.AdaptiveLogger;
 
 import edu.stanford.nlp.optimization.DiffFunction;
@@ -31,8 +30,8 @@ import edu.stanford.nlp.optimization.DiffFunction;
 public class LBFGSDiffFunction implements DiffFunction {
 
   private static AdaptiveLogger LOGGER = new AdaptiveLogger(
-      BatchGradientJobTest.RUN_LOCAL_MODE,
-      Logger.getLogger(LBFGSDiffFunction.class.getName()), Level.DEBUG);
+      Logger.getLogger(LBFGSDiffFunction.class.getName()), 
+      Level.DEBUG);
 
   private TrainingErrorJob trainingErrorJob;
   private GradientJob gradientJob;

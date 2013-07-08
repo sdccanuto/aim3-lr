@@ -9,7 +9,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.mahout.math.VectorWritable;
 
-import com.celebihacker.ml.logreg.EnsembleJobTest;
 import com.celebihacker.ml.util.AdaptiveLogger;
 import com.celebihacker.ml.writables.IDAndLabels;
 import com.celebihacker.ml.writables.VectorMultiLabeledWritable;
@@ -23,7 +22,8 @@ public class EnsembleMapper extends Mapper<IDAndLabels, VectorWritable, IntWrita
   IntWritable curPartition = new IntWritable();
   
   private static AdaptiveLogger log = new AdaptiveLogger(
-      EnsembleJobTest.RUN_LOCAL_MODE, Logger.getLogger(EnsembleMapper.class.getName()), Level.DEBUG); 
+      Logger.getLogger(EnsembleMapper.class.getName()), 
+      Level.DEBUG); 
   
   @Override
   protected void setup(Context context) throws IOException, InterruptedException {

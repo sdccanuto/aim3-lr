@@ -12,7 +12,6 @@ import org.apache.mahout.math.RandomAccessSparseVector;
 import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 
-import com.celebihacker.ml.logreg.EnsembleJobTest;
 import com.celebihacker.ml.util.AdaptiveLogger;
 import com.celebihacker.ml.validation.OnlineAccuracy;
 import com.celebihacker.ml.writables.VectorMultiLabeledWritable;
@@ -22,7 +21,8 @@ public class EnsembleReducer extends Reducer<IntWritable, VectorMultiLabeledWrit
   static final int LABEL_DIMENSION = EnsembleJob.datasetInfo.getLabelIdByName(EnsembleJob.TARGET_POSITIVE);
   
   private static AdaptiveLogger log = new AdaptiveLogger(
-      EnsembleJobTest.RUN_LOCAL_MODE, Logger.getLogger(EnsembleReducer.class.getName()), Level.DEBUG); 
+      Logger.getLogger(EnsembleReducer.class.getName()), 
+      Level.DEBUG); 
 
   @Override
   public void reduce(IntWritable key, Iterable<VectorMultiLabeledWritable> values, Context context) throws IOException, InterruptedException {

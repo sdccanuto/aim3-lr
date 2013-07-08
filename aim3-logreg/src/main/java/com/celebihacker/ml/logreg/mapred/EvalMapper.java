@@ -32,7 +32,8 @@ import com.google.common.io.Closeables;
 public class EvalMapper extends Mapper<IDAndLabels, VectorWritable, Text, IntPairWritable> {
   
   private static AdaptiveLogger log = new AdaptiveLogger(
-      EnsembleJobTest.RUN_LOCAL_MODE, Logger.getLogger(EvalMapper.class.getName()), Level.DEBUG); 
+      Logger.getLogger(EvalMapper.class.getName()), 
+      Level.DEBUG); 
   
 //  private Vector y;
   

@@ -16,7 +16,6 @@ import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 import org.apache.mahout.math.function.Functions;
 
-import com.celebihacker.ml.logreg.GradientJobTest;
 import com.celebihacker.ml.logreg.LogisticRegression;
 import com.celebihacker.ml.util.AdaptiveLogger;
 import com.celebihacker.ml.writables.IDAndLabels;
@@ -26,7 +25,8 @@ public class GradientMapper extends Mapper<IDAndLabels, VectorWritable, NullWrit
   static final int LABEL_DIMENSION = EnsembleJob.datasetInfo.getLabelIdByName(EnsembleJob.TARGET_POSITIVE);
   
   private static AdaptiveLogger log = new AdaptiveLogger(
-      GradientJobTest.RUN_LOCAL_MODE, Logger.getLogger(GradientMapper.class.getName()), Level.DEBUG); 
+      Logger.getLogger(GradientMapper.class.getName()), 
+      Level.DEBUG); 
   
   private LogisticRegression logreg;
   
@@ -47,8 +47,9 @@ public class GradientMapper extends Mapper<IDAndLabels, VectorWritable, NullWrit
     Vector w = null;
     for (Pair<NullWritable, VectorWritable> weights : new SequenceFileIterable<NullWritable, VectorWritable>(
         localPath, conf)) {
-
       w = weights.getSecond().get();
+      System.out.println("Read from distributed cache in gradient mapper");
+      System.out.println("- non zeros: " + w.getNumNonZeroElements());
 
     }
 
