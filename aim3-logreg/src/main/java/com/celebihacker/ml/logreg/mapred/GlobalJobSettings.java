@@ -21,8 +21,6 @@ public class GlobalJobSettings {
 
   static final Level LOG_LEVEL = Level.DEBUG;
 
-  static final String BASE_MODEL_PATH = "sfo-base-model.seq";
-
   // Can be changed (e.g. by testcase)
    static DatasetInfo datasetInfo = RCV1DatasetInfo.get();
 

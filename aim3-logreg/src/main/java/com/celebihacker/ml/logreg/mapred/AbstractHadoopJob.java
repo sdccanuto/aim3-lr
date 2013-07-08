@@ -43,6 +43,7 @@ public abstract class AbstractHadoopJob extends Configured implements Tool {
     
     Job job = new Job(getConf(), jobName);
     Configuration conf = job.getConfiguration();
+    setConf(conf);
     System.out.println("EQUALITY? " + getConf().equals(conf));
 
     conf.addResource(new Path(GlobalJobSettings.CONFIG_FILE_PATH));
