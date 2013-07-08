@@ -8,14 +8,13 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import com.celebihacker.ml.logreg.EnsembleJobTest;
 import com.celebihacker.ml.util.AdaptiveLogger;
 
 public class TrainingErrorReducer extends
     Reducer<NullWritable, DoubleWritable, NullWritable, DoubleWritable> {
 
   private static AdaptiveLogger LOGGER = new AdaptiveLogger(
-      EnsembleJobTest.RUN_LOCAL_MODE, Logger.getLogger(TrainingErrorReducer.class.getName()),
+      Logger.getLogger(TrainingErrorReducer.class.getName()),
       Level.DEBUG);
 
   @Override
