@@ -16,8 +16,7 @@ public class EnsembleJobTest {
   private static final String INPUT_FILE_TEST_LOCAL = "/home/andre/dev/datasets/RCV1-v2/vectors/lyrl2004_vectors_test_5000.seq";
 //  private static final String INPUT_FILE_TEST_HDFS = "rcv1-v2/lyrl2004_vectors_test_5000.seq";
   
-  // TODO Send this path via Distributed Cache to EvalMapper
-  public static final String OUTPUT_TRAIN_PATH = "output-aim3-ensemble";
+  private static final String OUTPUT_TRAIN_PATH = "output-aim3-ensemble";
   private static final String OUTPUT_TEST_PATH = "output-aim3-validation";
 
   @Test
@@ -31,7 +30,8 @@ public class EnsembleJobTest {
     
     ToolRunner.run(new EvalJob(
         INPUT_FILE_TEST_LOCAL, 
-        OUTPUT_TEST_PATH), null);
+        OUTPUT_TEST_PATH,
+        OUTPUT_TRAIN_PATH), null);
   }
 
 }

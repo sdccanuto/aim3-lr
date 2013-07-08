@@ -2,6 +2,10 @@ package com.celebihacker.ml.logreg.mapred;
 
 import org.apache.log4j.Level;
 
+import com.celebihacker.ml.datasets.DatasetInfo;
+import com.celebihacker.ml.datasets.RCV1DatasetInfo;
+
+
 /**
  * Static settings for the SFO Hadoop jobs.
  * 
@@ -20,7 +24,7 @@ public class GlobalJobSettings {
   static final String BASE_MODEL_PATH = "sfo-base-model.seq";
 
   // Can be changed (e.g. by testcase)
-  // static DatasetInfo datasetInfo = RCV1DatasetInfo.get();
+   static DatasetInfo datasetInfo = RCV1DatasetInfo.get();
 
   // --------- Settings for execution in a cluster ------------
 

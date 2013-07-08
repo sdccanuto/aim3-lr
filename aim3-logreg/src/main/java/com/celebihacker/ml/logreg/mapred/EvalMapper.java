@@ -19,7 +19,6 @@ import org.apache.mahout.math.RandomAccessSparseVector;
 import org.apache.mahout.math.VectorWritable;
 
 import com.celebihacker.ml.RegressionModel;
-import com.celebihacker.ml.logreg.EnsembleJobTest;
 import com.celebihacker.ml.logreg.LogisticRegressionEnsemble;
 import com.celebihacker.ml.logreg.LogisticRegressionEnsemble.VotingSchema;
 import com.celebihacker.ml.util.AdaptiveLogger;
@@ -52,8 +51,10 @@ public class EvalMapper extends Mapper<IDAndLabels, VectorWritable, Text, IntPai
   
   private void readEnsembleModels(Context context) throws IOException {
     
+    String trainOuputPath = context.getConfiguration().get(EvalJob.PARAM_NAME_TRAIN_OUTPUT);
+    
     // TODO Make this generic for ensemble, global and majority. Build model classes for each with own prediction method
-    Path dir = new Path(EnsembleJobTest.OUTPUT_TRAIN_PATH);
+    Path dir = new Path(trainOuputPath);
     FileSystem fs = FileSystem.get(context.getConfiguration());
     FileStatus[] statusList = fs.listStatus(dir, new PathFilter() {
       @Override
