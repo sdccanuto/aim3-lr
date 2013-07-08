@@ -59,10 +59,10 @@ public class LogisticRegressionEnsemble implements ClassificationModel, Regressi
     switch (votingSchema) {
     case MAJORITY_VOTE:
       
-      int[] votes = new int[2];
+      double[] votes = new double[2];
       for (Vector w : models) {
         logreg.setW(w);
-        ++ votes[ logreg.classify(x) ];
+        votes[ logreg.classify(x) ] += logreg.predict(x); 
       }
       // TODO Show how the variance is between the different models
       // TODO Show warning if number is even (no majority might exist)
@@ -80,6 +80,7 @@ public class LogisticRegressionEnsemble implements ClassificationModel, Regressi
     default:
       break;
     }
+    
     return prediction;
   }
 
