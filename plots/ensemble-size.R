@@ -10,9 +10,11 @@ createPlot <- function(filename) {
   to_file <- 1
 
   if (to_file==1) {
-    png(filename=paste("ensemble-size", filename, ".png"), height=600, width=600, 
+    png(filename=paste("ensemble-size", filename, ".png"), height=600, width=800, 
       bg="white")
     # postscript("fig1.eps")
+  } else {
+    dev.new(width=8, height=6)
   }
 
   accuracy_global <- 0.9422005270206056
@@ -25,21 +27,21 @@ createPlot <- function(filename) {
   y1 <- data_majority$avg
   ci_lower <- data_majority$ci_low
   ci_upper <- data_majority$ci_hig
-  g_range <- range(y1, y2)
+  g_range <- range(y1)
   #y1 <- c(91,92,92,92.5,93,92,90)
   #y2 <- c(90,91,91.4,91.8,92,92,90)
 
   # calculate confidence intervals
   # See http://www.cyclismo.org/tutorial/R/confidence.html
 
-
   g_range <- range(y1)
   g_range[1] <- g_range[1] - 0.01
   g_range[2] <- g_range[2] + 0.01
+  g_range=c(0.93, 0.95)
 
   barplot2(
     y1, 
-    main="Ensemble Size impact", 
+    main=" ", 
     xlab="Ensemble size",  
     ylab="Accuracy", 
     ylim=g_range,
@@ -49,7 +51,10 @@ createPlot <- function(filename) {
     axes=TRUE,
     plot.ci=TRUE,
     ci.l=ci_lower,
-    ci.u=ci_upper)
+    ci.u=ci_upper,
+    cex.lab=1.7,
+    cex.axis=1.5
+    )
     #density=c(10,10,10,10,10,10,20), 
 
   abline(accuracy_global, 0)
