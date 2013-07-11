@@ -17,12 +17,12 @@ data <- read.table("voting-histogram.dat", header=T, sep=" ")
 #data <- read.table("voting-histogram.dat", header=T, sep=" ")
 
 # Expand right side of clipping rect to make room for the legend
-par(xpd=T, mar=par()$mar+c(0,1,0,6))
+par(xpd=T, mar=par()$mar+c(0,2,0,6))
 
 # Graph autos (transposing the matrix) using heat colors,  
 # put 10% of the space between each bar, and make labels  
 # smaller with horizontal y-axis labels
-barplot(t(data), main="Voting Histogram", ylab="Outliers", 
+barplot(t(data), main=" ", ylab="Outliers", 
    col=heat.colors(8), space=0.1, cex.axis=1.5, cex.names=1.5, las=1,
    names.arg=c(2,3,4,6,8,16), cex=1.5, cex.lab=1.7)
    

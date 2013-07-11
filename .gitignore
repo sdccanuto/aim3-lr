@@ -10,3 +10,6 @@
 .project
 .settings
 target
+
+# Output folders
+*/output-aim3*
