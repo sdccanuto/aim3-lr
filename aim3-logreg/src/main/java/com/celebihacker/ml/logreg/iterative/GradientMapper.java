@@ -1,4 +1,4 @@
-package com.celebihacker.ml.logreg.mapred;
+package com.celebihacker.ml.logreg.iterative;
 
 import java.io.IOException;
 
@@ -16,26 +16,29 @@ import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 import org.apache.mahout.math.function.Functions;
 
-import com.celebihacker.ml.logreg.LogisticRegression;
+import com.celebihacker.ml.GlobalSettings;
+import com.celebihacker.ml.logreg.LogRegModel;
 import com.celebihacker.ml.util.AdaptiveLogger;
 import com.celebihacker.ml.writables.IDAndLabels;
 
 public class GradientMapper extends Mapper<IDAndLabels, VectorWritable, NullWritable, VectorWritable> {
   
-  static final int LABEL_DIMENSION = EnsembleJob.datasetInfo.getLabelIdByName(EnsembleJob.TARGET_POSITIVE);
-  
   private static AdaptiveLogger log = new AdaptiveLogger(
       Logger.getLogger(GradientMapper.class.getName()), 
-      Level.DEBUG); 
+      Level.DEBUG);
   
-  private LogisticRegression logreg;
+  private int labelDimension;
   
-  private Vector batchGradient = new RandomAccessSparseVector((int)EnsembleJob.datasetInfo.getVectorSize());
+  private LogRegModel logreg;
+  
+  private Vector batchGradient = new RandomAccessSparseVector((int)GlobalSettings.datasetInfo.getVectorSize());
   private long count=0;
   
   @Override
   protected void setup(Context context) throws IOException, InterruptedException {
     super.setup(context);
+    
+    labelDimension = Integer.parseInt(context.getConfiguration().get(GradientJob.CONF_KEY_LABEL_DIMENSION));
 
     Configuration conf = context.getConfiguration();
     Path[] iterationWeights = DistributedCache.getLocalCacheFiles(conf);
@@ -53,14 +56,14 @@ public class GradientMapper extends Mapper<IDAndLabels, VectorWritable, NullWrit
 
     }
 
-    this.logreg = new LogisticRegression(w, 0.5d);
+    this.logreg = new LogRegModel(w, 0.5d);
   }
 
   @Override
   public void map(IDAndLabels key, VectorWritable value, Context context) throws IOException, InterruptedException {
     
     // Compute gradient regarding current data point
-    Vector gradient = logreg.computePartialGradient(value.get(), (int)key.getLabels().get(LABEL_DIMENSION));
+    Vector gradient = logreg.computePartialGradient(value.get(), (int)key.getLabels().get(labelDimension));
     batchGradient.assign(gradient, Functions.PLUS);
     ++count;
   }

@@ -1,4 +1,4 @@
-package com.celebihacker.ml.logreg.mapred;
+package com.celebihacker.ml.logreg.iterative;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DoubleWritable;
@@ -10,6 +10,7 @@ import org.apache.mahout.math.SequentialAccessSparseVector;
 import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 
+import com.celebihacker.ml.AbstractHadoopJob;
 import com.celebihacker.ml.datasets.RCV1DatasetInfo;
 import com.celebihacker.ml.util.HadoopUtils;
 
@@ -24,14 +25,19 @@ public class TrainingErrorJob extends AbstractHadoopJob {
 
   private String inputFile;
   private String outputPath;
+  private int labelDimension;
+  
+  static final String CONF_KEY_LABEL_DIMENSION = "label-dimension";
 
   private final VectorWritable w;
 
   public TrainingErrorJob(
       String inputFile,
-      String outputPath) {
+      String outputPath,
+      int labelDimension) {
     this.inputFile = inputFile;
     this.outputPath = outputPath;
+    this.labelDimension = labelDimension;
 
     Vector weights = new SequentialAccessSparseVector((int) RCV1DatasetInfo.get().getNumFeatures());
     this.w = new VectorWritable(weights);
@@ -54,6 +60,8 @@ public class TrainingErrorJob extends AbstractHadoopJob {
         inputFile,
         outputPath);
     job.setCombinerClass(TrainingErrorReducer.class);
+    
+    job.getConfiguration().set(CONF_KEY_LABEL_DIMENSION, Integer.toString(labelDimension));
     
     cleanupOutputDirectory(outputPath);
 

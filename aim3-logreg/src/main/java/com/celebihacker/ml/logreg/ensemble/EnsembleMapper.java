@@ -1,4 +1,4 @@
-package com.celebihacker.ml.logreg.mapred;
+package com.celebihacker.ml.logreg.ensemble;
 
 import java.io.IOException;
 import java.util.Random;

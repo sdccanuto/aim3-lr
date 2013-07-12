@@ -1,10 +1,12 @@
-package com.celebihacker.ml.logreg.mapred;
+package com.celebihacker.ml.logreg.eval;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.mahout.common.IntPairWritable;
+
+import com.celebihacker.ml.AbstractHadoopJob;
 
 public class EvalJob extends AbstractHadoopJob {
 
@@ -17,14 +19,19 @@ public class EvalJob extends AbstractHadoopJob {
   private String inputFile;
   private String outputPath;
   private String trainOuputPath;
+  private int labelDimension;
+  
+  static final String CONF_KEY_LABEL_DIMENSION = "label-dimension";
   
   public EvalJob(String inputFile,
       String outputPath,
-      String trainOuputPath) {
+      String trainOuputPath,
+      int labelDimension) {
     
     this.inputFile = inputFile;
     this.outputPath = outputPath;
     this.trainOuputPath = trainOuputPath;
+    this.labelDimension = labelDimension;
   }
 
   public int run(String[] args) throws Exception {
@@ -42,6 +49,8 @@ public class EvalJob extends AbstractHadoopJob {
         TextOutputFormat.class,
         inputFile,
         outputPath);
+    
+    job.getConfiguration().set(CONF_KEY_LABEL_DIMENSION, Integer.toString(labelDimension));
     
     cleanupOutputDirectory(outputPath);
     

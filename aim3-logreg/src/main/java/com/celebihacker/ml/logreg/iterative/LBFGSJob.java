@@ -1,4 +1,4 @@
-package com.celebihacker.ml.logreg.mapred;
+package com.celebihacker.ml.logreg.iterative;
 
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.util.Tool;

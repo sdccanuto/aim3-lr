@@ -1,4 +1,4 @@
-package com.celebihacker.ml.logreg.mapred;
+package com.celebihacker.ml.logreg.iterative;
 
 import java.io.IOException;
 
@@ -13,14 +13,13 @@ import org.apache.mahout.common.iterator.sequencefile.SequenceFileIterable;
 import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 
-import com.celebihacker.ml.logreg.LogisticRegressionHelper;
+import com.celebihacker.ml.logreg.LogRegMath;
 import com.celebihacker.ml.writables.IDAndLabels;
 
 public class TrainingErrorMapper extends
     Mapper<IDAndLabels, VectorWritable, NullWritable, DoubleWritable> {
-
-  static final int LABEL_DIMENSION = EnsembleJob.datasetInfo
-      .getLabelIdByName(EnsembleJob.TARGET_POSITIVE);
+  
+  private int labelDimension;
 
   private Vector w;
   private DoubleWritable trainingError = new DoubleWritable();
@@ -28,6 +27,8 @@ public class TrainingErrorMapper extends
   @Override
   protected void setup(Context context) throws IOException, InterruptedException {
     super.setup(context);
+    
+    labelDimension = Integer.parseInt(context.getConfiguration().get(TrainingErrorJob.CONF_KEY_LABEL_DIMENSION));
 
     // read initial weights
     Configuration conf = context.getConfiguration();
@@ -49,9 +50,9 @@ public class TrainingErrorMapper extends
       InterruptedException {
 
     Vector x = value.get();
-    double y = key.getLabels().get(LABEL_DIMENSION);
+    double y = key.getLabels().get(labelDimension);
 
-    this.trainingError.set(LogisticRegressionHelper.computeError(x, this.w, y));
+    this.trainingError.set(LogRegMath.computeSqError(x, this.w, y));
 
     context.write(NullWritable.get(), this.trainingError);
   }

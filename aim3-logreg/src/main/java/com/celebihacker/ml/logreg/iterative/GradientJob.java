@@ -1,4 +1,4 @@
-package com.celebihacker.ml.logreg.mapred;
+package com.celebihacker.ml.logreg.iterative;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.NullWritable;
@@ -9,6 +9,7 @@ import org.apache.mahout.math.SequentialAccessSparseVector;
 import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 
+import com.celebihacker.ml.AbstractHadoopJob;
 import com.celebihacker.ml.datasets.RCV1DatasetInfo;
 import com.celebihacker.ml.util.HadoopUtils;
 
@@ -23,12 +24,16 @@ public class GradientJob extends AbstractHadoopJob {
 
   private String inputFile;
   private String outputPath;
+  private int labelDimension;
+  
+  static final String CONF_KEY_LABEL_DIMENSION = "label-dimension";
 
   private final VectorWritable weights;
 
-  public GradientJob(String inputFile, String outputPath) {
+  public GradientJob(String inputFile, String outputPath, int labelDimension) {
     this.inputFile = inputFile;
     this.outputPath = outputPath;
+    this.labelDimension = labelDimension;
 
     Vector vec = new SequentialAccessSparseVector((int) RCV1DatasetInfo.get().getNumFeatures());
     this.weights = new VectorWritable(vec);
@@ -50,7 +55,7 @@ public class GradientJob extends AbstractHadoopJob {
         inputFile,
         outputPath);
     
-//    cleanupOutputDirectory(outputPath);
+    job.getConfiguration().set(CONF_KEY_LABEL_DIMENSION, Integer.toString(labelDimension));
 
     Path cachePath = new Path(job.getConfiguration().get("hadoop.tmp.dir") + "/initial_weights");
     HadoopUtils.writeVectorToDistCache(job.getConfiguration(), this.weights, cachePath);

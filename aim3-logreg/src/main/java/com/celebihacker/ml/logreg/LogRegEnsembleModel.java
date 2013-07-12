@@ -15,34 +15,30 @@ import com.celebihacker.ml.util.MLUtils;
  * Implementation of a ensemble model for Logistic Regression
  * Internally it has multiple logistic regression models
  * Those are combined to a single prediction (supporting different VotingSchemas)
- * 
  */
-public class LogisticRegressionEnsemble implements ClassificationModel, RegressionModel {
+public class LogRegEnsembleModel implements ClassificationModel, RegressionModel {
   
   List<RandomAccessSparseVector> models;
   double threshold;
   VotingSchema votingSchema;
-  Vector mergedModel;   // only used if votingSchema is merge_model
-  
-  LogisticRegression logreg;
+  Vector wMergedModel;   // only used if votingSchema is merge_model
   
   public enum VotingSchema {
     MAJORITY_VOTE,
     MERGED_MODEL
   }
 
-  public LogisticRegressionEnsemble(List<RandomAccessSparseVector> models, double threshold, VotingSchema votingSchema) {
+  public LogRegEnsembleModel(List<RandomAccessSparseVector> models, double threshold, VotingSchema votingSchema) {
     this.models = models;
     this.threshold = threshold;
     this.votingSchema = votingSchema;
-    this.logreg = new LogisticRegression(null, threshold);
     
     if (votingSchema == VotingSchema.MERGED_MODEL) {
       // TODO Interesting: How much vary the features between the models? How much sparsity is removed on merging?
       
       RandomAccessSparseVector[] modelArray = models.toArray(new RandomAccessSparseVector[models.size()]);
       Matrix modelsMatrix = new SparseRowMatrix(models.size(), models.get(0).size(), modelArray);
-      mergedModel = MLUtils.meanByColumns(modelsMatrix);
+      wMergedModel = MLUtils.meanByColumns(modelsMatrix);
     }
   }
 
@@ -61,8 +57,7 @@ public class LogisticRegressionEnsemble implements ClassificationModel, Regressi
       
       double[] votes = new double[2];
       for (Vector w : models) {
-        logreg.setW(w);
-        votes[ logreg.classify(x) ] += logreg.predict(x); 
+        votes[ LogRegMath.classify(x, w) ] += LogRegMath.predict(x, w); 
       }
       // TODO Show how the variance is between the different models
       // TODO Show warning if number is even (no majority might exist)
@@ -72,8 +67,7 @@ public class LogisticRegressionEnsemble implements ClassificationModel, Regressi
       
     case MERGED_MODEL:
 
-      double xDotW = x.dot(mergedModel) + intercept;
-      prediction = LogisticRegression.logisticFunction(xDotW);
+      prediction = LogRegMath.predict(x, wMergedModel, intercept);
       
       break;
       

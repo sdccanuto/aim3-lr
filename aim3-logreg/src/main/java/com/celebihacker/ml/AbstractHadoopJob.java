@@ -1,4 +1,4 @@
-package com.celebihacker.ml.logreg.mapred;
+package com.celebihacker.ml;
 
 import java.io.IOException;
 
@@ -46,7 +46,7 @@ public abstract class AbstractHadoopJob extends Configured implements Tool {
     setConf(conf);
     System.out.println("EQUALITY? " + getConf().equals(conf));
 
-    conf.addResource(new Path(GlobalJobSettings.CONFIG_FILE_PATH));
+    conf.addResource(new Path(GlobalSettings.CONFIG_FILE_PATH));
     
     boolean runLocal = HadoopUtils.detectLocalMode(conf);
     if (runLocal) {
@@ -67,7 +67,7 @@ public abstract class AbstractHadoopJob extends Configured implements Tool {
       // This is needed if we run from eclipse, which won't build a jar automatically
       // In this case we have to build the jar manually before!
       // mvn package will build a jar with all required dependencies
-      conf.set("mapred.jar", GlobalJobSettings.JAR_PATH);
+      conf.set("mapred.jar", GlobalSettings.JAR_PATH);
       
 //      job.setNumReduceTasks(4);
       conf.setInt("mapred.reduce.tasks", numReducers);

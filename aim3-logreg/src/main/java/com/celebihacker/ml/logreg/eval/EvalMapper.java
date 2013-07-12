@@ -1,4 +1,4 @@
-package com.celebihacker.ml.logreg.mapred;
+package com.celebihacker.ml.logreg.eval;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,8 +19,8 @@ import org.apache.mahout.math.RandomAccessSparseVector;
 import org.apache.mahout.math.VectorWritable;
 
 import com.celebihacker.ml.RegressionModel;
-import com.celebihacker.ml.logreg.LogisticRegressionEnsemble;
-import com.celebihacker.ml.logreg.LogisticRegressionEnsemble.VotingSchema;
+import com.celebihacker.ml.logreg.LogRegEnsembleModel;
+import com.celebihacker.ml.logreg.LogRegEnsembleModel.VotingSchema;
 import com.celebihacker.ml.util.AdaptiveLogger;
 import com.celebihacker.ml.validation.OnlineAccuracy;
 import com.celebihacker.ml.writables.IDAndLabels;
@@ -34,16 +34,17 @@ public class EvalMapper extends Mapper<IDAndLabels, VectorWritable, Text, IntPai
       Logger.getLogger(EvalMapper.class.getName()), 
       Level.DEBUG); 
   
-//  private Vector y;
-  
   private double THRESHOLD = 0.5;
   private Map<String, RegressionModel> models = Maps.newHashMap();
   private Map<String, OnlineAccuracy> accuracies = Maps.newHashMap();
+  private int labelDimension;
   
   @Override
   protected void setup(Context context) throws IOException, InterruptedException {
     super.setup(context);
     log.debug("Eval Setup");
+    
+    labelDimension = Integer.parseInt(context.getConfiguration().get(EvalJob.CONF_KEY_LABEL_DIMENSION));
     
     // Read trained models from previous job output
     readEnsembleModels(context);
@@ -68,22 +69,6 @@ public class EvalMapper extends Mapper<IDAndLabels, VectorWritable, Text, IntPai
     
     System.out.println("- Read trained models from " + statusList.length + " files");
     for (FileStatus status : statusList) {
-      
-//      BufferedReader reader = MLUtils.open(status.getPath().toString());
-//      String line;
-//      try {
-//        while ((line = reader.readLine()) != null) {
-//          // TODO Ensure that RandomAccessSparseVector is written in Mapper
-//          VectorWritable ensembleModel = new VectorWritable();
-//          Vector
-//          ensembleModels.add((RandomAccessSparseVector)ensembleModel.get());
-//          System.out.println("Partition " + partitionId.get() + ": Non zeros: " + ensembleModel.get().getNumNonZeroElements());
-//        }
-//      } finally {
-//        Closeables.close(reader, true);
-//      }
-      
-      
       SequenceFile.Reader reader = new SequenceFile.Reader(fs, status.getPath(), context.getConfiguration());
       try {
         IntWritable partitionId = new IntWritable();
@@ -97,9 +82,9 @@ public class EvalMapper extends Mapper<IDAndLabels, VectorWritable, Text, IntPai
       }
     }
     
-    models.put("ensemble-majority", new LogisticRegressionEnsemble(ensembleModels, THRESHOLD, VotingSchema.MAJORITY_VOTE));
+    models.put("ensemble-majority", new LogRegEnsembleModel(ensembleModels, THRESHOLD, VotingSchema.MAJORITY_VOTE));
     accuracies.put("ensemble-majority", new OnlineAccuracy(THRESHOLD));
-    models.put("ensemble-merged", new LogisticRegressionEnsemble(ensembleModels, THRESHOLD, VotingSchema.MERGED_MODEL));
+    models.put("ensemble-merged", new LogRegEnsembleModel(ensembleModels, THRESHOLD, VotingSchema.MERGED_MODEL));
     accuracies.put("ensemble-merged", new OnlineAccuracy(THRESHOLD));
   }
 
@@ -110,7 +95,7 @@ public class EvalMapper extends Mapper<IDAndLabels, VectorWritable, Text, IntPai
     for (Map.Entry<String, RegressionModel> model : models.entrySet()) {
       double prediction = model.getValue().predict(value.get());
       accuracies.get(model.getKey()).addSample(
-          (int)key.getLabels().get(EnsembleReducer.LABEL_DIMENSION),
+          (int)key.getLabels().get(labelDimension),
           prediction);
     }
   }

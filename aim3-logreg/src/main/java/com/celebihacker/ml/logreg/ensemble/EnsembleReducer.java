@@ -1,4 +1,4 @@
-package com.celebihacker.ml.logreg.mapred;
+package com.celebihacker.ml.logreg.ensemble;
 
 import java.io.IOException;
 
@@ -12,34 +12,52 @@ import org.apache.mahout.math.RandomAccessSparseVector;
 import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 
+import com.celebihacker.ml.GlobalSettings;
 import com.celebihacker.ml.util.AdaptiveLogger;
 import com.celebihacker.ml.validation.OnlineAccuracy;
 import com.celebihacker.ml.writables.VectorMultiLabeledWritable;
 
 public class EnsembleReducer extends Reducer<IntWritable, VectorMultiLabeledWritable, IntWritable, VectorWritable> {
   
-  static final int LABEL_DIMENSION = EnsembleJob.datasetInfo.getLabelIdByName(EnsembleJob.TARGET_POSITIVE);
+  private int labelDimension;
   
   private static AdaptiveLogger log = new AdaptiveLogger(
       Logger.getLogger(EnsembleReducer.class.getName()), 
       Level.DEBUG); 
+  
+  @Override
+    protected void setup(Context context)
+        throws IOException, InterruptedException {
+      super.setup(context);
+      
+      labelDimension = Integer.parseInt(context.getConfiguration().get(EnsembleJob.CONF_KEY_LABEL_DIMENSION));
+    }
 
   @Override
   public void reduce(IntWritable key, Iterable<VectorMultiLabeledWritable> values, Context context) throws IOException, InterruptedException {
     // TRAIN
     // Use stochastic gradient descent online learning
+    // Alpha, decayExponent, and stepOffset: rate and way that the learning rate decreases
+    // lambda: amount of regularization
+    // learningRate: initial learning rate.
+    // 
+    // Other comment:
+    // Usually, decayExponentand stepOffsetare used to control how the initial learning
+    // rate is decreased over time; setting alpha is much less common
     OnlineLogisticRegression learningAlgorithm = new OnlineLogisticRegression(
-    2, (int)EnsembleJob.datasetInfo.getVectorSize(), new L1());
-    learningAlgorithm.alpha(1).stepOffset(1000)
-    .decayExponent(0.2)
-    .lambda(3.0e-5)
-    .learningRate(20);
+        2, (int)GlobalSettings.datasetInfo.getVectorSize(), new L1());
+        learningAlgorithm
+        .alpha(1)   // 1 (skipping is bad)
+        .stepOffset(1000)   // 1000
+        .decayExponent(0.1) // 0.9
+        .lambda(3.0e-6) // 3.0e-5
+        .learningRate(15);  // 20
 
     OnlineAccuracy accuracy = new OnlineAccuracy(0.5);
     for (VectorMultiLabeledWritable lVec : values) {
       
       // Test prediction
-      int actualTarget = (int)lVec.getLabels().get(LABEL_DIMENSION);
+      int actualTarget = (int)lVec.getLabels().get(labelDimension);
       Vector vec = lVec.getVector();
       double prediction = learningAlgorithm.classifyScalar(vec);
       accuracy.addSample(actualTarget, prediction);

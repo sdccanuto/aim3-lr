@@ -22,6 +22,9 @@ import com.google.common.collect.ImmutableMap;
  * - 804,414    total (training + test)
  * - 810,935    highest document-id
  * - 381,327    points labeled with CCAT (RCV1-v2)
+ * - 119,920    points labeled with ECAT (RCV1-v2)
+ * - 239,267    points labeled with GCAT (RCV1-v2)
+ * - 204,820    points labeled with MCAT (RCV1-v2)
  * 
  * REFERENCES:
  * [1] Lewis, D. D.; Yang, Y.; Rose, T.; and Li, F. RCV1: 

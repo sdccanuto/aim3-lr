@@ -1,16 +1,14 @@
-package com.celebihacker.ml.logreg.mapred;
+package com.celebihacker.ml.logreg.iterative;
 
 import java.io.File;
 import java.io.FileFilter;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.PathFilter;
 import org.apache.hadoop.io.NullWritable;
-import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -20,6 +18,7 @@ import org.apache.mahout.math.SequentialAccessSparseVector;
 import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 
+import com.celebihacker.ml.GlobalSettings;
 import com.celebihacker.ml.datasets.DatasetInfo;
 import com.celebihacker.ml.datasets.RCV1DatasetInfo;
 import com.celebihacker.ml.util.AdaptiveLogger;
@@ -29,17 +28,16 @@ import com.google.common.base.Joiner;
 /**
  * Batch gradient for logistic regression
  */
-public class BatchGradientJob extends Configured implements Tool {
+public class BatchGradientJob {
 
   private static AdaptiveLogger LOGGER = new AdaptiveLogger(
       Logger.getLogger(BatchGradientJob.class.getName()), 
       Level.DEBUG);
 
-//  static final int REDUCE_TASKS = 1;
-
   private String inputFile;
   private String outputPath;
   private final int maxIterations;
+  private int labelDimension;
 
   private final VectorWritable weights;
 
@@ -50,9 +48,11 @@ public class BatchGradientJob extends Configured implements Tool {
       String inputFile,
       String outputPath,
       int maxIterations,
-      double initial) {
+      double initial,
+      int labelDimension) {
     this.inputFile = inputFile;
     this.outputPath = outputPath;
+    this.labelDimension = labelDimension;
 
     this.maxIterations = maxIterations;
 
@@ -63,8 +63,7 @@ public class BatchGradientJob extends Configured implements Tool {
     this.weights = new VectorWritable(vec);
   }
   
-  @Override
-  public int run(String[] args) throws Exception {
+  public int train() throws Exception {
 
     // Non zero numbers for rcv1-v2 (5000): 21871 -> 19199 -> 19165
     
@@ -72,7 +71,7 @@ public class BatchGradientJob extends Configured implements Tool {
     
     // Configuration object for file system actions
     Configuration conf = new Configuration();
-    conf.addResource(new Path(GlobalJobSettings.CONFIG_FILE_PATH));
+    conf.addResource(new Path(GlobalSettings.CONFIG_FILE_PATH));
     boolean runLocal = HadoopUtils.detectLocalMode(conf);
 
     // iterations
@@ -82,13 +81,12 @@ public class BatchGradientJob extends Configured implements Tool {
       // output path for this iteration
       Path iterationPath = new Path(pathJoiner.join(this.outputPath, "iteration" + i));
 
-//      Job job = prepareJob();
       FileSystem fs = FileSystem.get(conf);
-//      FileOutputFormat.setOutputPath(job, iterationPath);
       
       GradientJob job = new GradientJob(
           inputFile,
-          iterationPath.toString());
+          iterationPath.toString(),
+          labelDimension);
       
       if (i == 0) {
 
@@ -99,11 +97,6 @@ public class BatchGradientJob extends Configured implements Tool {
           fs.delete(new Path(this.outputPath), true);
         }
         
-        // Initial weights
-//        Path cachePath = new Path(conf.get("hadoop.tmp.dir") + "/initial_weights");
-//        HadoopUtils.writeVectorToDistCache(conf, this.weights, cachePath);
-//        LOGGER.debug("> added " + cachePath.toUri() + " to DistributedCache");
-        
       } else {
 
         // Add weights of previous iteration to DistributedCache (existing file)
@@ -112,8 +105,6 @@ public class BatchGradientJob extends Configured implements Tool {
         
         Path cachePath = prevIterationWeights[0].getPath();
         this.weights.set(readVectorFromHDFS(cachePath, conf));
-//        DistributedCache.addCacheFile(cachePath.toUri(), conf);
-//        LOGGER.debug("> added " + cachePath.toUri() + " to DistributedCache");
 
       }
       
@@ -121,7 +112,6 @@ public class BatchGradientJob extends Configured implements Tool {
       job.setWeightVector(this.weights.get());
       
       // execute job
-//      hasSucceeded[i] = job.waitForCompletion(false);
       hasSucceeded[i] = (ToolRunner.run(job, null)==0) ? true : false;
       LOGGER.debug("> completed iteration? " + hasSucceeded[i]);
     }
@@ -144,53 +134,6 @@ public class BatchGradientJob extends Configured implements Tool {
     }
     return w;
   }
-
-//  private Job prepareJob() throws IOException {
-//
-//    System.out.println("-----------------");
-//    System.out.println("Prepare Job: " + JOB_NAME);
-//    System.out.println("-----------------");
-//
-//    Job job = new Job(getConf(), JOB_NAME);
-//    Configuration conf = job.getConfiguration();
-//    job.setJarByClass(getClass());
-//
-//    String inputFile = "";
-//    boolean runLocal = HadoopUtils.detectLocalMode(conf);
-//    if (runLocal) {
-//      System.out.println("RUN IN LOCAL MODE");
-//      inputFile = this.inputFileLocal;
-//    } else {
-//      System.out.println("RUN IN PSEUDO-DISTRIBUTED/CLUSTER MODE");
-//      inputFile = this.inputFileHdfs;
-//      conf.addResource(new Path(this.configFilePath));
-//
-//      // This jar has all required dependencies in it. Must be built first (mvn package)!
-//      conf.set("mapred.jar", this.jarPath);
-//
-//      // job.setNumReduceTasks(4);
-//      conf.setInt("mapred.reduce.tasks", REDUCE_TASKS);
-//    }
-//
-//    System.out.println("Jar path: " + job.getJar());
-//
-//    job.setMapOutputKeyClass(NullWritable.class);
-//    job.setMapOutputValueClass(VectorWritable.class);
-//    job.setOutputKeyClass(NullWritable.class);
-//    job.setOutputValueClass(VectorWritable.class);
-//
-//    job.setMapperClass(GradientMapper.class);
-//    // job.setCombinerClass(GradientReducer.class);
-//    job.setReducerClass(GradientReducer.class);
-//
-//    job.setInputFormatClass(SequenceFileInputFormat.class);
-//    job.setOutputFormatClass(SequenceFileOutputFormat.class);
-//
-//    // configure the used input/output format class.
-//    FileInputFormat.addInputPath(job, new Path(inputFile));
-//
-//    return job;
-//  }
 
   private static class IterationOutputFilter implements PathFilter {
 

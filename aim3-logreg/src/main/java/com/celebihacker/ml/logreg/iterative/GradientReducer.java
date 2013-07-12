@@ -1,4 +1,4 @@
-package com.celebihacker.ml.logreg.mapred;
+package com.celebihacker.ml.logreg.iterative;
 
 import java.io.IOException;
 
@@ -11,6 +11,7 @@ import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 import org.apache.mahout.math.function.Functions;
 
+import com.celebihacker.ml.GlobalSettings;
 import com.celebihacker.ml.util.AdaptiveLogger;
 
 public class GradientReducer extends Reducer<NullWritable, VectorWritable, NullWritable, VectorWritable> {
@@ -20,7 +21,7 @@ public class GradientReducer extends Reducer<NullWritable, VectorWritable, NullW
   
   @Override
   public void reduce(NullWritable key, Iterable<VectorWritable> values, Context context) throws IOException, InterruptedException {
-    Vector batchGradientSum = new RandomAccessSparseVector((int)EnsembleJob.datasetInfo.getVectorSize());
+    Vector batchGradientSum = new RandomAccessSparseVector((int)GlobalSettings.datasetInfo.getVectorSize());
     
     for (VectorWritable gradient : values) {
       batchGradientSum.assign(gradient.get(), Functions.PLUS);

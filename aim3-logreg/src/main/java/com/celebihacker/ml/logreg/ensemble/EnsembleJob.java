@@ -1,4 +1,4 @@
-package com.celebihacker.ml.logreg.mapred;
+package com.celebihacker.ml.logreg.ensemble;
 
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Job;
@@ -6,8 +6,7 @@ import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.mahout.math.VectorWritable;
 
-import com.celebihacker.ml.datasets.DatasetInfo;
-import com.celebihacker.ml.datasets.RCV1DatasetInfo;
+import com.celebihacker.ml.AbstractHadoopJob;
 import com.celebihacker.ml.writables.VectorMultiLabeledWritable;
 
 public class EnsembleJob extends AbstractHadoopJob {
@@ -17,19 +16,19 @@ public class EnsembleJob extends AbstractHadoopJob {
   private String inputFile;
   private String outputPath;
   private int partitions;
+  private int labelDimension;
   
-  static DatasetInfo datasetInfo = RCV1DatasetInfo.get();
-  
-  // TODO Feature: Currently we train a hardcoded single 1-vs-all classifier
-  static final String TARGET_POSITIVE = "CCAT";
+  static final String CONF_KEY_LABEL_DIMENSION = "label-dimension";
   
   public EnsembleJob(
       String inputFile,
       String outputPath,
-      int partitions) {
+      int partitions,
+      int labelDimension) {
     this.inputFile = inputFile;
     this.outputPath = outputPath;
     this.partitions = partitions;
+    this.labelDimension = labelDimension;
   }
 
   public int run(String[] args) throws Exception {
@@ -47,6 +46,8 @@ public class EnsembleJob extends AbstractHadoopJob {
         SequenceFileOutputFormat.class,
         inputFile,
         outputPath);
+    
+    job.getConfiguration().set(CONF_KEY_LABEL_DIMENSION, Integer.toString(labelDimension));
     
     cleanupOutputDirectory(outputPath);
     
