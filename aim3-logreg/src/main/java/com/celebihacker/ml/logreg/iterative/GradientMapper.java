@@ -16,7 +16,6 @@ import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 import org.apache.mahout.math.function.Functions;
 
-import com.celebihacker.ml.GlobalSettings;
 import com.celebihacker.ml.logreg.LogRegModel;
 import com.celebihacker.ml.util.AdaptiveLogger;
 import com.celebihacker.ml.writables.IDAndLabels;
@@ -28,10 +27,11 @@ public class GradientMapper extends Mapper<IDAndLabels, VectorWritable, NullWrit
       Level.DEBUG);
   
   private int labelDimension;
+  private int numFeatures;
   
   private LogRegModel logreg;
   
-  private Vector batchGradient = new RandomAccessSparseVector((int)GlobalSettings.datasetInfo.getVectorSize());
+  private Vector batchGradient;
   private long count=0;
   
   @Override
@@ -39,6 +39,9 @@ public class GradientMapper extends Mapper<IDAndLabels, VectorWritable, NullWrit
     super.setup(context);
     
     labelDimension = Integer.parseInt(context.getConfiguration().get(GradientJob.CONF_KEY_LABEL_DIMENSION));
+    numFeatures = Integer.parseInt(context.getConfiguration().get(GradientJob.CONF_KEY_NUM_FEATURES));
+    
+    batchGradient = new RandomAccessSparseVector(numFeatures);
 
     Configuration conf = context.getConfiguration();
     Path[] iterationWeights = DistributedCache.getLocalCacheFiles(conf);

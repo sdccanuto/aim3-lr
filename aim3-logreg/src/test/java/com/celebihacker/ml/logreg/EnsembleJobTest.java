@@ -3,12 +3,14 @@ package com.celebihacker.ml.logreg;
 import org.apache.hadoop.util.ToolRunner;
 import org.junit.Test;
 
+import com.celebihacker.ml.datasets.DatasetInfo;
 import com.celebihacker.ml.datasets.RCV1DatasetInfo;
 import com.celebihacker.ml.logreg.ensemble.EnsembleJob;
 import com.celebihacker.ml.logreg.eval.EvalJob;
 
 public class EnsembleJobTest {
   
+  private static final DatasetInfo DATASET = RCV1DatasetInfo.get();
   private static final int ENSEMBLE_SIZE = 4;
   
   // Currently we train a hardcoded single 1-vs-all classifier
@@ -28,14 +30,15 @@ public class EnsembleJobTest {
   @Test
   public void test() throws Exception {
     
-    int labelDimension = RCV1DatasetInfo.get().getLabelIdByName(TARGET_POSITIVE);
+    int labelDimension = DATASET.getLabelIdByName(TARGET_POSITIVE);
     
 //    String[] args = new String[] { inputPath, outputPath };
     ToolRunner.run(new EnsembleJob(
         INPUT_FILE_TRAIN_LOCAL, 
         OUTPUT_TRAIN_PATH, 
         ENSEMBLE_SIZE,
-        labelDimension), null);
+        labelDimension,
+        (int)DATASET.getVectorSize()), null);
     
     ToolRunner.run(new EvalJob(
         INPUT_FILE_TEST_LOCAL, 

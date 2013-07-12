@@ -25,15 +25,22 @@ public class GradientJob extends AbstractHadoopJob {
   private String inputFile;
   private String outputPath;
   private int labelDimension;
+  private int numFeatures;
   
   static final String CONF_KEY_LABEL_DIMENSION = "label-dimension";
+  static final String CONF_KEY_NUM_FEATURES = "num-features";
 
   private final VectorWritable weights;
 
-  public GradientJob(String inputFile, String outputPath, int labelDimension) {
+  public GradientJob(
+      String inputFile, 
+      String outputPath,
+      int labelDimension,
+      int numFeatures) {
     this.inputFile = inputFile;
     this.outputPath = outputPath;
     this.labelDimension = labelDimension;
+    this.numFeatures = numFeatures;
 
     Vector vec = new SequentialAccessSparseVector((int) RCV1DatasetInfo.get().getNumFeatures());
     this.weights = new VectorWritable(vec);
@@ -56,6 +63,7 @@ public class GradientJob extends AbstractHadoopJob {
         outputPath);
     
     job.getConfiguration().set(CONF_KEY_LABEL_DIMENSION, Integer.toString(labelDimension));
+    job.getConfiguration().set(CONF_KEY_NUM_FEATURES, Integer.toString(numFeatures));
 
     Path cachePath = new Path(job.getConfiguration().get("hadoop.tmp.dir") + "/initial_weights");
     HadoopUtils.writeVectorToDistCache(job.getConfiguration(), this.weights, cachePath);

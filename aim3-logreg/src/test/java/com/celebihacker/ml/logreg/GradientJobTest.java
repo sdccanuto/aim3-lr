@@ -3,11 +3,13 @@ package com.celebihacker.ml.logreg;
 import org.apache.hadoop.util.ToolRunner;
 import org.junit.Test;
 
+import com.celebihacker.ml.datasets.DatasetInfo;
 import com.celebihacker.ml.datasets.RCV1DatasetInfo;
 import com.celebihacker.ml.logreg.iterative.GradientJob;
 
 public class GradientJobTest {
-
+  
+  private static final DatasetInfo DATASET = RCV1DatasetInfo.get();
   private static final String TARGET_POSITIVE = "CCAT";
   
 //  private static final String INPUT_FILE_TRAIN_LOCAL = "/Users/uce/Desktop/rcv1-v2/vectors/lyrl2004_vectors_train_5000.seq";
@@ -17,13 +19,14 @@ public class GradientJobTest {
 
   @Test
   public void test() throws Exception {
-    
-    int labelDimension = RCV1DatasetInfo.get().getLabelIdByName(TARGET_POSITIVE);
+
+    int labelDimension = DATASET.getLabelIdByName(TARGET_POSITIVE);
     
     GradientJob job = new GradientJob(
         INPUT_FILE_TRAIN_LOCAL,
         OUTPUT_TRAIN_PATH,
-        labelDimension);    
+        labelDimension,
+        (int)DATASET.getVectorSize());    
 
     ToolRunner.run(job, null);
   }

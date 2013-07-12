@@ -11,17 +11,26 @@ import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 import org.apache.mahout.math.function.Functions;
 
-import com.celebihacker.ml.GlobalSettings;
 import com.celebihacker.ml.util.AdaptiveLogger;
 
 public class GradientReducer extends Reducer<NullWritable, VectorWritable, NullWritable, VectorWritable> {
   
   private static AdaptiveLogger log = new AdaptiveLogger(
-      Logger.getLogger(GradientReducer.class.getName()), Level.DEBUG); 
+      Logger.getLogger(GradientReducer.class.getName()), Level.DEBUG);
+
+  private int numFeatures;
+  
+  @Override
+  protected void setup(Context context)
+      throws IOException, InterruptedException {
+    super.setup(context);
+
+    numFeatures = Integer.parseInt(context.getConfiguration().get(GradientJob.CONF_KEY_NUM_FEATURES));
+  }
   
   @Override
   public void reduce(NullWritable key, Iterable<VectorWritable> values, Context context) throws IOException, InterruptedException {
-    Vector batchGradientSum = new RandomAccessSparseVector((int)GlobalSettings.datasetInfo.getVectorSize());
+    Vector batchGradientSum = new RandomAccessSparseVector(numFeatures);
     
     for (VectorWritable gradient : values) {
       batchGradientSum.assign(gradient.get(), Functions.PLUS);

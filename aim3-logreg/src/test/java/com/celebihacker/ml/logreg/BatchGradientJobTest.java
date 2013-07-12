@@ -2,11 +2,13 @@ package com.celebihacker.ml.logreg;
 
 import org.junit.Test;
 
+import com.celebihacker.ml.datasets.DatasetInfo;
 import com.celebihacker.ml.datasets.RCV1DatasetInfo;
-import com.celebihacker.ml.logreg.iterative.BatchGradientJob;
+import com.celebihacker.ml.logreg.iterative.BatchGradientDriver;
 
 public class BatchGradientJobTest {
-
+  
+  private static final DatasetInfo DATASET = RCV1DatasetInfo.get();
   private static final String TARGET_POSITIVE = "CCAT";
 
 //  private static final String INPUT_FILE_TRAIN_LOCAL = "/Users/uce/Desktop/rcv1-v2/vectors/lyrl2004_vectors_train_5000.seq";
@@ -21,16 +23,17 @@ public class BatchGradientJobTest {
   @Test
   public void test() throws Exception {
     
-    int labelDimension = RCV1DatasetInfo.get().getLabelIdByName(TARGET_POSITIVE);
+    int labelDimension = DATASET.getLabelIdByName(TARGET_POSITIVE);
 
     double initial = 1;
     
-    BatchGradientJob bgDriver = new BatchGradientJob(
+    BatchGradientDriver bgDriver = new BatchGradientDriver(
         INPUT_FILE_TRAIN_LOCAL, 
         OUTPUT_TRAIN_PATH, 
         MAX_ITERATIONS,
         initial,
-        labelDimension);
+        labelDimension,
+        (int)DATASET.getVectorSize());
     
 //    job.setWeightVector(initial);
     

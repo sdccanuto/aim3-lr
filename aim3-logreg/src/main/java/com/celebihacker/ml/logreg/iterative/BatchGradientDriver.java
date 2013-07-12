@@ -28,31 +28,34 @@ import com.google.common.base.Joiner;
 /**
  * Batch gradient for logistic regression
  */
-public class BatchGradientJob {
+public class BatchGradientDriver {
 
   private static AdaptiveLogger LOGGER = new AdaptiveLogger(
-      Logger.getLogger(BatchGradientJob.class.getName()), 
+      Logger.getLogger(BatchGradientDriver.class.getName()), 
       Level.DEBUG);
 
   private String inputFile;
   private String outputPath;
   private final int maxIterations;
   private int labelDimension;
+  private int numFeatures;
 
   private final VectorWritable weights;
 
   public static final DatasetInfo rcv1 = RCV1DatasetInfo.get();
   private static final Joiner pathJoiner = Joiner.on("/");
 
-  public BatchGradientJob(
+  public BatchGradientDriver(
       String inputFile,
       String outputPath,
       int maxIterations,
       double initial,
-      int labelDimension) {
+      int labelDimension,
+      int numFeatures) {
     this.inputFile = inputFile;
     this.outputPath = outputPath;
     this.labelDimension = labelDimension;
+    this.numFeatures = numFeatures;
 
     this.maxIterations = maxIterations;
 
@@ -86,7 +89,8 @@ public class BatchGradientJob {
       GradientJob job = new GradientJob(
           inputFile,
           iterationPath.toString(),
-          labelDimension);
+          labelDimension,
+          numFeatures);
       
       if (i == 0) {
 

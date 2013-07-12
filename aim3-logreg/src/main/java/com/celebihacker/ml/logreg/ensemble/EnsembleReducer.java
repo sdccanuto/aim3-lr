@@ -12,14 +12,14 @@ import org.apache.mahout.math.RandomAccessSparseVector;
 import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 
-import com.celebihacker.ml.GlobalSettings;
 import com.celebihacker.ml.util.AdaptiveLogger;
 import com.celebihacker.ml.validation.OnlineAccuracy;
 import com.celebihacker.ml.writables.VectorMultiLabeledWritable;
 
 public class EnsembleReducer extends Reducer<IntWritable, VectorMultiLabeledWritable, IntWritable, VectorWritable> {
-  
+
   private int labelDimension;
+  private int numFeatures;
   
   private static AdaptiveLogger log = new AdaptiveLogger(
       Logger.getLogger(EnsembleReducer.class.getName()), 
@@ -31,6 +31,7 @@ public class EnsembleReducer extends Reducer<IntWritable, VectorMultiLabeledWrit
       super.setup(context);
       
       labelDimension = Integer.parseInt(context.getConfiguration().get(EnsembleJob.CONF_KEY_LABEL_DIMENSION));
+      numFeatures = Integer.parseInt(context.getConfiguration().get(EnsembleJob.CONF_KEY_NUM_FEATURES));
     }
 
   @Override
@@ -45,8 +46,11 @@ public class EnsembleReducer extends Reducer<IntWritable, VectorMultiLabeledWrit
     // Usually, decayExponentand stepOffsetare used to control how the initial learning
     // rate is decreased over time; setting alpha is much less common
     OnlineLogisticRegression learningAlgorithm = new OnlineLogisticRegression(
-        2, (int)GlobalSettings.datasetInfo.getVectorSize(), new L1());
-        learningAlgorithm
+        2,
+        numFeatures,
+        new L1());
+    
+    learningAlgorithm
         .alpha(1)   // 1 (skipping is bad)
         .stepOffset(1000)   // 1000
         .decayExponent(0.1) // 0.9

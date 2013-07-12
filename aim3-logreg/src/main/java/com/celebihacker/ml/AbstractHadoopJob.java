@@ -19,7 +19,6 @@ import org.apache.hadoop.util.Tool;
 import com.celebihacker.ml.util.HadoopUtils;
 import com.celebihacker.ml.util.IOUtils;
 
-
 public abstract class AbstractHadoopJob extends Configured implements Tool {
   
   protected Job prepareJob(

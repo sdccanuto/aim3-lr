@@ -17,18 +17,22 @@ public class EnsembleJob extends AbstractHadoopJob {
   private String outputPath;
   private int partitions;
   private int labelDimension;
+  private int numFeatures;
   
   static final String CONF_KEY_LABEL_DIMENSION = "label-dimension";
+  static final String CONF_KEY_NUM_FEATURES = "num-features";
   
   public EnsembleJob(
       String inputFile,
       String outputPath,
       int partitions,
-      int labelDimension) {
+      int labelDimension,
+      int numFeatures) {
     this.inputFile = inputFile;
     this.outputPath = outputPath;
     this.partitions = partitions;
     this.labelDimension = labelDimension;
+    this.numFeatures = numFeatures;
   }
 
   public int run(String[] args) throws Exception {
@@ -48,6 +52,7 @@ public class EnsembleJob extends AbstractHadoopJob {
         outputPath);
     
     job.getConfiguration().set(CONF_KEY_LABEL_DIMENSION, Integer.toString(labelDimension));
+    job.getConfiguration().set(CONF_KEY_NUM_FEATURES, Integer.toString(numFeatures));
     
     cleanupOutputDirectory(outputPath);
     

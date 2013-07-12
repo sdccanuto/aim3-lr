@@ -8,7 +8,7 @@ import edu.stanford.nlp.optimization.QNMinimizer;
 /**
  * L-BFGS with MR implementation of DiffFunction.
  */
-public class LBFGSJob extends Configured implements Tool {
+public class LBFGSDriver extends Configured implements Tool {
 
   private GradientJob gradientJob;
   private TrainingErrorJob trainingErrorJob;
@@ -16,13 +16,13 @@ public class LBFGSJob extends Configured implements Tool {
   private final int maxIterations;
   private double[] initial;
 
-  public LBFGSJob(TrainingErrorJob trainingErrorJob, GradientJob gradientJob, 
+  public LBFGSDriver(TrainingErrorJob trainingErrorJob, GradientJob gradientJob, 
       double eps, double[] initial) {
 
     this(trainingErrorJob, gradientJob, eps, initial, 0);
   }
   
-  public LBFGSJob(TrainingErrorJob trainingErrorJob, GradientJob gradientJob, 
+  public LBFGSDriver(TrainingErrorJob trainingErrorJob, GradientJob gradientJob, 
       double eps, double[] initial, int maxIterations) {
 
     this.trainingErrorJob = trainingErrorJob;
