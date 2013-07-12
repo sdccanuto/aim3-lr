@@ -1,4 +1,4 @@
-package com.celebihacker.ml.logreg;
+package com.celebihacker.ml.logreg.ensemble;
 
 import java.util.List;
 
@@ -9,6 +9,7 @@ import org.apache.mahout.math.Vector;
 
 import com.celebihacker.ml.ClassificationModel;
 import com.celebihacker.ml.RegressionModel;
+import com.celebihacker.ml.logreg.LogRegMath;
 import com.celebihacker.ml.util.MLUtils;
 
 /**

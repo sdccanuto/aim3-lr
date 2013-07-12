@@ -12,7 +12,8 @@ public class EvalJob extends AbstractHadoopJob {
 
   private static String JOB_NAME = "aim3-validation";
   
-  static String PARAM_NAME_TRAIN_OUTPUT = "train-output";
+  static final String CONF_KEY_TRAIN_OUTPUT = "train-output";
+  static final String CONF_KEY_LABEL_DIMENSION = "label-dimension";
 
   private static final int REDUCE_TASKS = 1;
   
@@ -20,8 +21,6 @@ public class EvalJob extends AbstractHadoopJob {
   private String outputPath;
   private String trainOuputPath;
   private int labelDimension;
-  
-  static final String CONF_KEY_LABEL_DIMENSION = "label-dimension";
   
   public EvalJob(String inputFile,
       String outputPath,
@@ -54,7 +53,7 @@ public class EvalJob extends AbstractHadoopJob {
     
     cleanupOutputDirectory(outputPath);
     
-    job.getConfiguration().set(PARAM_NAME_TRAIN_OUTPUT, trainOuputPath);
+    job.getConfiguration().set(CONF_KEY_TRAIN_OUTPUT, trainOuputPath);
     
     return job.waitForCompletion(true) ? 0 : 1;
   }

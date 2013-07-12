@@ -12,6 +12,8 @@ import com.google.common.base.Splitter;
 
 public class RCV1VectorReader {
   
+  private RCV1VectorReader() { }
+  
   // For TRAC Format (see below)
   private static Splitter TRAC_SPLITTER = Splitter.on(Pattern.compile("[ :]"))
       .trimResults()
@@ -48,7 +50,7 @@ public class RCV1VectorReader {
    * GCAT(Government/Social)
    * MCAT(Markets)
    */
-  public static  void readLabels(String path, Vector yC, Vector yE, Vector yG, Vector yM) throws IOException {
+  public static void readLabels(String path, Vector yC, Vector yE, Vector yG, Vector yM) throws IOException {
     // Line format: ECAT 2286 1
     BufferedReader reader = MLUtils.open(path);
     String line;

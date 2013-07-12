@@ -15,7 +15,6 @@ public class GlobalSettings {
   public static final Level LOG_LEVEL = Level.DEBUG;
 
   // --------- Settings for execution in a cluster ------------
-
   public static final String JAR_PATH = "target/aim3-logreg-0.0.1-SNAPSHOT-job.jar";
 
 }
