@@ -16,35 +16,55 @@ import com.google.common.collect.Lists;
  * 
  */
 public class DatasetInfo {
-  
+
+  private long numFeatures=0;
+  private long total=0;
   private List<String> predictorNames = Lists.newArrayList();
-//  private int numTargets;
-  private long numFeatures;
-  private long vectorSize;
-  // TODO total is size of y vector for test and training -> no longer needed with sequence files!
-  private long total;
   private BiMap<Integer, String> labelMap = HashBiMap.create();
   
-  public DatasetInfo(List<String> predictorNames) {
-    this.predictorNames = predictorNames;
-    this.numFeatures = predictorNames.size();
+  /**
+   * Builder pattern (effective java, item 2)
+   * Makes object immutable and easy to add optional parameters
+   */
+  public static class Builder {
     
-    // TODO This is wrong, as there might be ids that are not in use
-    this.vectorSize = predictorNames.size();
+    // Required parameters
+    private long numFeatures = 0;
+    private long total = 0;
+    
+    // Optional parameters
+    private List<String> predictorNames = null;
+    private BiMap<Integer, String> labelMap = null;
+    
+    public Builder(
+      long numFeatures,
+      long total) {
+      this.numFeatures = numFeatures;
+      this.total = total;
+    }
+    
+    public Builder predictorNames(List<String> val) {
+      predictorNames = val; return this;
+    }
+    
+    public Builder labelMap(Map<Integer, String> val) {
+      labelMap = HashBiMap.create(val); return this;
+    }
+    
+    public DatasetInfo build() {
+      return new DatasetInfo(this);
+    }
   }
   
-  public DatasetInfo(long numFeatures,
-      long vectorSize,
-      long total,
-      Map<Integer, String> labelMap) {
-    this.vectorSize = vectorSize;
-    this.numFeatures = numFeatures;
-    this.total = total;
-    this.labelMap = HashBiMap.create(labelMap);
+  private DatasetInfo(Builder builder) {
+    numFeatures = builder.numFeatures;
+    total = builder.total;
+    predictorNames = builder.predictorNames;
+    labelMap = builder.labelMap;
   }
   
   public String getFeatureName(int dimension) {
-    if (predictorNames.size()>dimension)
+    if (predictorNames != null && predictorNames.size() > dimension)
       return predictorNames.get(dimension);
     return "unknown feature";
   }
@@ -65,7 +85,8 @@ public class DatasetInfo {
     return numFeatures;
   }
   
-  public long getVectorSize() {
-    return vectorSize;
+  public void setPredictorNames(List<String> predictorNames) {
+    this.predictorNames = predictorNames;
   }
+  
 }
