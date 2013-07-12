@@ -26,7 +26,7 @@ public class GradientJobTest {
         INPUT_FILE_TRAIN_LOCAL,
         OUTPUT_TRAIN_PATH,
         labelDimension,
-        (int)DATASET.getVectorSize());    
+        (int)DATASET.getNumFeatures());    
 
     ToolRunner.run(job, null);
   }

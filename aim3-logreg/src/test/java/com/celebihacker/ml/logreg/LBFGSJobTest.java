@@ -34,7 +34,7 @@ public class LBFGSJobTest {
         INPUT_FILE_TRAIN_LOCAL,
         OUTPUT_TRAIN_PATH,
         labelDimension,
-        (int)DATASET.getVectorSize());
+        (int)DATASET.getNumFeatures());
 
     double eps = 0.1;
 

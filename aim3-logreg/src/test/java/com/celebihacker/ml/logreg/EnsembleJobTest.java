@@ -38,7 +38,7 @@ public class EnsembleJobTest {
         OUTPUT_TRAIN_PATH, 
         ENSEMBLE_SIZE,
         labelDimension,
-        (int)DATASET.getVectorSize()), null);
+        (int)DATASET.getNumFeatures()), null);
     
     ToolRunner.run(new EvalJob(
         INPUT_FILE_TEST_LOCAL, 

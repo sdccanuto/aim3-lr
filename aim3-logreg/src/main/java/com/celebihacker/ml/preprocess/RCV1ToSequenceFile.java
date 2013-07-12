@@ -54,7 +54,7 @@ public class RCV1ToSequenceFile {
         folderPath + "vectors/lyrl2004_vectors_test_pt2.dat",
         folderPath + "vectors/lyrl2004_vectors_test_pt3.dat");
     
-    int maxFeatureId = (int)RCV1DatasetInfo.get().getVectorSize();
+    int maxFeatureId = (int)RCV1DatasetInfo.get().getNumFeatures();
     int labelRows = (int)RCV1DatasetInfo.get().getTotal();
 
     RCV1ToSequenceFile.transform(trainingFile, 

@@ -33,7 +33,7 @@ public class BatchGradientJobTest {
         MAX_ITERATIONS,
         initial,
         labelDimension,
-        (int)DATASET.getVectorSize());
+        (int)DATASET.getNumFeatures());
     
 //    job.setWeightVector(initial);
     
